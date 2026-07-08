@@ -1,0 +1,124 @@
+{
+  "institution": "shaho-kenpo",
+  "insurer": "kyoukaikenpo",
+  "fiscalYear": 2026,
+  "era": "R8",
+  "status": "verified",
+  "source": {
+    "url": "https://www.kyoukaikenpo.or.jp/about/business/insurance_rate/rate_prefectures/r08/index.html",
+    "verifiedAt": "2026-07-03",
+    "note": "公式ページの都道府県単位保険料率表から転記。全国平均9.9%（R7比▲0.1）",
+    "crossCheck": {
+      "verifiedAt": "2026-07-07",
+      "method": "R8料額表PDF（月額欄の健保料率）と再突合",
+      "samples": [
+        { "pref": "osaka", "data": 0.1013, "pdf": 0.1013, "url": "https://www.kyoukaikenpo.or.jp/assets/R8_27osaka.pdf" },
+        { "pref": "okinawa", "data": 0.0944, "pdf": 0.0944, "url": "https://www.kyoukaikenpo.or.jp/assets/R8_47okinawa.pdf" },
+        { "pref": "saga", "data": 0.1055, "pdf": 0.1055, "url": "https://www.kyoukaikenpo.or.jp/assets/R8_41saga.pdf" }
+      ],
+      "result": "3県とも一致（差別化キー県の裏取り済）"
+    }
+  },
+  "careRate": {
+    "rate": 0.0162,
+    "validFrom": "2026-03",
+    "validTo": "2027-02",
+    "appliesTo": "age40to64",
+    "note": "介護保険第2号被保険者（40〜64歳）。全国一律。R7は0.0159"
+  },
+  "shienkinRate": {
+    "rate": 0.0023,
+    "validFrom": "2026-04",
+    "validTo": "2027-03",
+    "note": "子ども・子育て支援金。全国一律。健保料率と適用開始が1ヶ月ずれる（4月分＝5月納付分から）点に注意",
+    "futureSchedule": {
+      "status": "rate_unpublished",
+      "verifiedAt": "2026-07-07",
+      "note": "[未確認・推測] R9(2027)・R10(2028)の支援金『率(%)』は一次ソースで未公表。段階導入のため増額見込みだが率は使用不可。R9率はR8同様2月頃(健保料率と同時期)に公表される想定。公表まで対象月に合う率が無ければ暗黙フォールバックせずthrowする設計を維持。",
+      "reference": {
+        "totalYen": [
+          { "fy": "R8", "approx": 600000000000 },
+          { "fy": "R9", "approx": 800000000000 },
+          { "fy": "R10", "approx": 1000000000000 }
+        ],
+        "kyoukaiPerCapitaMonthlyYen": [
+          { "fy": "R8", "value": 250 },
+          { "fy": "R9", "value": 350 },
+          { "fy": "R10", "value": 450 }
+        ],
+        "sourceNote": "[確認済] 総額目安と加入者一人当たり月額見込み。こども家庭庁資料。率換算ではない参考値",
+        "sources": [
+          "https://www.mhlw.go.jp/content/12401000/001670257.pdf",
+          "https://www.cfa.go.jp/assets/contents/node/basic_page/field_ref_resources/ba94b64b-731f-4f48-97ba-b54a76b0aeb6/7fb56c33/20240329_councils_shienkin-daijinkonwakai_04.pdf"
+        ]
+      }
+    }
+  },
+  "validFrom": "2026-03",
+  "validTo": "2027-02",
+  "niniKeizoku": {
+    "capStandardMonthly": 320000,
+    "capGrade": 23,
+    "basisAvgYen": 318100,
+    "basisDate": "2025-09-30",
+    "validFrom": "2026-04",
+    "status": "verified",
+    "verifiedAt": "2026-07-08",
+    "source": "https://www.kyoukaikenpo.or.jp/g1/r7-12/7121001/",
+    "note": "任意継続の標準報酬月額 = min(資格喪失時の標準報酬月額, 前年9/30時点の全被保険者平均標準報酬月額の該当等級)。R8は平均318,100円→第23級=320,000円。任意継続は4月分から適用（健保本体の3月分と1ヶ月ずれ）。全額自己負担（折半なし）。/hikaku/（任意継続 vs 国保）用の予約フィールド"
+  },
+  "notes": [
+    "「○月分」＝対象月ベース。納付は翌月（3月分＝4月納付分）",
+    "任意継続被保険者・日雇特例被保険者は4月分からの適用",
+    "労使折半。被保険者負担＝標準報酬月額×率÷2"
+  ],
+  "prefRates": [
+    { "prefCode": "01", "prefSlug": "hokkaido", "prefName": "北海道", "rate": 0.1028 },
+    { "prefCode": "02", "prefSlug": "aomori", "prefName": "青森県", "rate": 0.0985 },
+    { "prefCode": "03", "prefSlug": "iwate", "prefName": "岩手県", "rate": 0.0951 },
+    { "prefCode": "04", "prefSlug": "miyagi", "prefName": "宮城県", "rate": 0.1010 },
+    { "prefCode": "05", "prefSlug": "akita", "prefName": "秋田県", "rate": 0.1001 },
+    { "prefCode": "06", "prefSlug": "yamagata", "prefName": "山形県", "rate": 0.0975 },
+    { "prefCode": "07", "prefSlug": "fukushima", "prefName": "福島県", "rate": 0.0950 },
+    { "prefCode": "08", "prefSlug": "ibaraki", "prefName": "茨城県", "rate": 0.0952 },
+    { "prefCode": "09", "prefSlug": "tochigi", "prefName": "栃木県", "rate": 0.0982 },
+    { "prefCode": "10", "prefSlug": "gunma", "prefName": "群馬県", "rate": 0.0968 },
+    { "prefCode": "11", "prefSlug": "saitama", "prefName": "埼玉県", "rate": 0.0967 },
+    { "prefCode": "12", "prefSlug": "chiba", "prefName": "千葉県", "rate": 0.0973 },
+    { "prefCode": "13", "prefSlug": "tokyo", "prefName": "東京都", "rate": 0.0985 },
+    { "prefCode": "14", "prefSlug": "kanagawa", "prefName": "神奈川県", "rate": 0.0992 },
+    { "prefCode": "15", "prefSlug": "niigata", "prefName": "新潟県", "rate": 0.0921 },
+    { "prefCode": "16", "prefSlug": "toyama", "prefName": "富山県", "rate": 0.0959 },
+    { "prefCode": "17", "prefSlug": "ishikawa", "prefName": "石川県", "rate": 0.0970 },
+    { "prefCode": "18", "prefSlug": "fukui", "prefName": "福井県", "rate": 0.0971 },
+    { "prefCode": "19", "prefSlug": "yamanashi", "prefName": "山梨県", "rate": 0.0955 },
+    { "prefCode": "20", "prefSlug": "nagano", "prefName": "長野県", "rate": 0.0963 },
+    { "prefCode": "21", "prefSlug": "gifu", "prefName": "岐阜県", "rate": 0.0980 },
+    { "prefCode": "22", "prefSlug": "shizuoka", "prefName": "静岡県", "rate": 0.0961 },
+    { "prefCode": "23", "prefSlug": "aichi", "prefName": "愛知県", "rate": 0.0993 },
+    { "prefCode": "24", "prefSlug": "mie", "prefName": "三重県", "rate": 0.0977 },
+    { "prefCode": "25", "prefSlug": "shiga", "prefName": "滋賀県", "rate": 0.0988 },
+    { "prefCode": "26", "prefSlug": "kyoto", "prefName": "京都府", "rate": 0.0989 },
+    { "prefCode": "27", "prefSlug": "osaka", "prefName": "大阪府", "rate": 0.1013 },
+    { "prefCode": "28", "prefSlug": "hyogo", "prefName": "兵庫県", "rate": 0.1012 },
+    { "prefCode": "29", "prefSlug": "nara", "prefName": "奈良県", "rate": 0.0991 },
+    { "prefCode": "30", "prefSlug": "wakayama", "prefName": "和歌山県", "rate": 0.1006 },
+    { "prefCode": "31", "prefSlug": "tottori", "prefName": "鳥取県", "rate": 0.0986 },
+    { "prefCode": "32", "prefSlug": "shimane", "prefName": "島根県", "rate": 0.0994 },
+    { "prefCode": "33", "prefSlug": "okayama", "prefName": "岡山県", "rate": 0.1005 },
+    { "prefCode": "34", "prefSlug": "hiroshima", "prefName": "広島県", "rate": 0.0978 },
+    { "prefCode": "35", "prefSlug": "yamaguchi", "prefName": "山口県", "rate": 0.1015 },
+    { "prefCode": "36", "prefSlug": "tokushima", "prefName": "徳島県", "rate": 0.1024 },
+    { "prefCode": "37", "prefSlug": "kagawa", "prefName": "香川県", "rate": 0.1002 },
+    { "prefCode": "38", "prefSlug": "ehime", "prefName": "愛媛県", "rate": 0.0998 },
+    { "prefCode": "39", "prefSlug": "kochi", "prefName": "高知県", "rate": 0.1005 },
+    { "prefCode": "40", "prefSlug": "fukuoka", "prefName": "福岡県", "rate": 0.1011 },
+    { "prefCode": "41", "prefSlug": "saga", "prefName": "佐賀県", "rate": 0.1055 },
+    { "prefCode": "42", "prefSlug": "nagasaki", "prefName": "長崎県", "rate": 0.1006 },
+    { "prefCode": "43", "prefSlug": "kumamoto", "prefName": "熊本県", "rate": 0.1008 },
+    { "prefCode": "44", "prefSlug": "oita", "prefName": "大分県", "rate": 0.1008 },
+    { "prefCode": "45", "prefSlug": "miyazaki", "prefName": "宮崎県", "rate": 0.0977 },
+    { "prefCode": "46", "prefSlug": "kagoshima", "prefName": "鹿児島県", "rate": 0.1013 },
+    { "prefCode": "47", "prefSlug": "okinawa", "prefName": "沖縄県", "rate": 0.0944 }
+  ]
+}

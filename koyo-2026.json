@@ -1,0 +1,45 @@
+{
+  "institution": "shaho-koyo",
+  "insurer": "mhlw",
+  "fiscalYear": 2026,
+  "era": "R8",
+  "status": "verified",
+  "source": {
+    "url": "https://www.mhlw.go.jp/content/001692566.pdf",
+    "verifiedAt": "2026-07-03",
+    "note": "R7比▲0.1%",
+    "crossCheck": {
+      "verifiedAt": "2026-07-07",
+      "method": "厚労省R8料率PDF(適用2026-04〜2027-03)本文と3区分再突合",
+      "result": "一般13.5/農林水産清酒15.5/建設16.5(いずれも/1000)とも一致",
+      "note": "園芸サービス・牛馬育成・酪農・養鶏・養豚・内水面養殖・特定船員は『一般の事業』率を適用（PDF注記）"
+    }
+  },
+  "validFrom": "2026-04",
+  "validTo": "2027-03",
+  "base": "wage-total",
+  "baseNote": "標準報酬月額ではなく賃金総額（通勤手当等含む実支給額）に料率を乗じる",
+  "categories": [
+    {
+      "key": "ippan",
+      "label": "一般の事業",
+      "total": 0.0135,
+      "employee": 0.005,
+      "employer": 0.0085
+    },
+    {
+      "key": "nourin",
+      "label": "農林水産・清酒製造の事業",
+      "total": 0.0155,
+      "employee": 0.006,
+      "employer": 0.0095
+    },
+    {
+      "key": "kensetsu",
+      "label": "建設の事業",
+      "total": 0.0165,
+      "employee": 0.006,
+      "employer": 0.0105
+    }
+  ]
+}

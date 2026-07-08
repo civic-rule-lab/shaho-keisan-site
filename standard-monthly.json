@@ -1,0 +1,445 @@
+{
+  "institution": "shaho-standard-monthly",
+  "status": "verified",
+  "statusNote": "[確認済 2026-07-07] 協会けんぽR8料額表（令和8年3月分〜, 東京PDF R8_13tokyo.pdf）の報酬月額レンジ列を explicitBoundaries に転記済。標準報酬月額列も既存と一致確認。等級境界は全県共通（都道府県で差があるのは料率のみ）。",
+  "source": {
+    "ratougakuhyouIndex": "https://www.kyoukaikenpo.or.jp/about/business/insurance_rate/premium_prefectures/r08/index.html",
+    "transcribedFrom": "https://www.kyoukaikenpo.or.jp/assets/R8_13tokyo.pdf",
+    "allPrefsExcel": "https://www.kyoukaikenpo.or.jp/assets/r8ippan3.xlsx",
+    "verifiedAt": "2026-07-07"
+  },
+  "boundaryRule": "explicitBoundaries を正とする。各等級の報酬月額 range は [min(以上,inclusive), max(未満,exclusive)]。min=null は下限なし（1等級）、max=null は上限なし（50等級）。中点則は廃止（下記 midpointDivergence 参照）。",
+  "midpointDivergence": {
+    "note": "[確認済 2026-07-07] 旧・中点則は44級/45級境界より上で公式表と食い違う（6箇所すべて公式が5,000円低い）。中点則で等級判定していた場合、下記レンジの報酬月額で誤判定が発生していた。",
+    "mismatches": [
+      {
+        "boundary": "44/45",
+        "midpoint": 1060000,
+        "official": 1055000
+      },
+      {
+        "boundary": "45/46",
+        "midpoint": 1120000,
+        "official": 1115000
+      },
+      {
+        "boundary": "46/47",
+        "midpoint": 1180000,
+        "official": 1175000
+      },
+      {
+        "boundary": "47/48",
+        "midpoint": 1240000,
+        "official": 1235000
+      },
+      {
+        "boundary": "48/49",
+        "midpoint": 1300000,
+        "official": 1295000
+      },
+      {
+        "boundary": "49/50",
+        "midpoint": 1360000,
+        "official": 1355000
+      }
+    ]
+  },
+  "explicitBoundaries": [
+    {
+      "grade": 1,
+      "standardMonthly": 58000,
+      "min": null,
+      "max": 63000
+    },
+    {
+      "grade": 2,
+      "standardMonthly": 68000,
+      "min": 63000,
+      "max": 73000
+    },
+    {
+      "grade": 3,
+      "standardMonthly": 78000,
+      "min": 73000,
+      "max": 83000
+    },
+    {
+      "grade": 4,
+      "standardMonthly": 88000,
+      "min": 83000,
+      "max": 93000
+    },
+    {
+      "grade": 5,
+      "standardMonthly": 98000,
+      "min": 93000,
+      "max": 101000
+    },
+    {
+      "grade": 6,
+      "standardMonthly": 104000,
+      "min": 101000,
+      "max": 107000
+    },
+    {
+      "grade": 7,
+      "standardMonthly": 110000,
+      "min": 107000,
+      "max": 114000
+    },
+    {
+      "grade": 8,
+      "standardMonthly": 118000,
+      "min": 114000,
+      "max": 122000
+    },
+    {
+      "grade": 9,
+      "standardMonthly": 126000,
+      "min": 122000,
+      "max": 130000
+    },
+    {
+      "grade": 10,
+      "standardMonthly": 134000,
+      "min": 130000,
+      "max": 138000
+    },
+    {
+      "grade": 11,
+      "standardMonthly": 142000,
+      "min": 138000,
+      "max": 146000
+    },
+    {
+      "grade": 12,
+      "standardMonthly": 150000,
+      "min": 146000,
+      "max": 155000
+    },
+    {
+      "grade": 13,
+      "standardMonthly": 160000,
+      "min": 155000,
+      "max": 165000
+    },
+    {
+      "grade": 14,
+      "standardMonthly": 170000,
+      "min": 165000,
+      "max": 175000
+    },
+    {
+      "grade": 15,
+      "standardMonthly": 180000,
+      "min": 175000,
+      "max": 185000
+    },
+    {
+      "grade": 16,
+      "standardMonthly": 190000,
+      "min": 185000,
+      "max": 195000
+    },
+    {
+      "grade": 17,
+      "standardMonthly": 200000,
+      "min": 195000,
+      "max": 210000
+    },
+    {
+      "grade": 18,
+      "standardMonthly": 220000,
+      "min": 210000,
+      "max": 230000
+    },
+    {
+      "grade": 19,
+      "standardMonthly": 240000,
+      "min": 230000,
+      "max": 250000
+    },
+    {
+      "grade": 20,
+      "standardMonthly": 260000,
+      "min": 250000,
+      "max": 270000
+    },
+    {
+      "grade": 21,
+      "standardMonthly": 280000,
+      "min": 270000,
+      "max": 290000
+    },
+    {
+      "grade": 22,
+      "standardMonthly": 300000,
+      "min": 290000,
+      "max": 310000
+    },
+    {
+      "grade": 23,
+      "standardMonthly": 320000,
+      "min": 310000,
+      "max": 330000
+    },
+    {
+      "grade": 24,
+      "standardMonthly": 340000,
+      "min": 330000,
+      "max": 350000
+    },
+    {
+      "grade": 25,
+      "standardMonthly": 360000,
+      "min": 350000,
+      "max": 370000
+    },
+    {
+      "grade": 26,
+      "standardMonthly": 380000,
+      "min": 370000,
+      "max": 395000
+    },
+    {
+      "grade": 27,
+      "standardMonthly": 410000,
+      "min": 395000,
+      "max": 425000
+    },
+    {
+      "grade": 28,
+      "standardMonthly": 440000,
+      "min": 425000,
+      "max": 455000
+    },
+    {
+      "grade": 29,
+      "standardMonthly": 470000,
+      "min": 455000,
+      "max": 485000
+    },
+    {
+      "grade": 30,
+      "standardMonthly": 500000,
+      "min": 485000,
+      "max": 515000
+    },
+    {
+      "grade": 31,
+      "standardMonthly": 530000,
+      "min": 515000,
+      "max": 545000
+    },
+    {
+      "grade": 32,
+      "standardMonthly": 560000,
+      "min": 545000,
+      "max": 575000
+    },
+    {
+      "grade": 33,
+      "standardMonthly": 590000,
+      "min": 575000,
+      "max": 605000
+    },
+    {
+      "grade": 34,
+      "standardMonthly": 620000,
+      "min": 605000,
+      "max": 635000
+    },
+    {
+      "grade": 35,
+      "standardMonthly": 650000,
+      "min": 635000,
+      "max": 665000
+    },
+    {
+      "grade": 36,
+      "standardMonthly": 680000,
+      "min": 665000,
+      "max": 695000
+    },
+    {
+      "grade": 37,
+      "standardMonthly": 710000,
+      "min": 695000,
+      "max": 730000
+    },
+    {
+      "grade": 38,
+      "standardMonthly": 750000,
+      "min": 730000,
+      "max": 770000
+    },
+    {
+      "grade": 39,
+      "standardMonthly": 790000,
+      "min": 770000,
+      "max": 810000
+    },
+    {
+      "grade": 40,
+      "standardMonthly": 830000,
+      "min": 810000,
+      "max": 855000
+    },
+    {
+      "grade": 41,
+      "standardMonthly": 880000,
+      "min": 855000,
+      "max": 905000
+    },
+    {
+      "grade": 42,
+      "standardMonthly": 930000,
+      "min": 905000,
+      "max": 955000
+    },
+    {
+      "grade": 43,
+      "standardMonthly": 980000,
+      "min": 955000,
+      "max": 1005000
+    },
+    {
+      "grade": 44,
+      "standardMonthly": 1030000,
+      "min": 1005000,
+      "max": 1055000
+    },
+    {
+      "grade": 45,
+      "standardMonthly": 1090000,
+      "min": 1055000,
+      "max": 1115000
+    },
+    {
+      "grade": 46,
+      "standardMonthly": 1150000,
+      "min": 1115000,
+      "max": 1175000
+    },
+    {
+      "grade": 47,
+      "standardMonthly": 1210000,
+      "min": 1175000,
+      "max": 1235000
+    },
+    {
+      "grade": 48,
+      "standardMonthly": 1270000,
+      "min": 1235000,
+      "max": 1295000
+    },
+    {
+      "grade": 49,
+      "standardMonthly": 1330000,
+      "min": 1295000,
+      "max": 1355000
+    },
+    {
+      "grade": 50,
+      "standardMonthly": 1390000,
+      "min": 1355000,
+      "max": null
+    }
+  ],
+  "kenpo": {
+    "gradeCount": 50,
+    "amounts": [
+      58000,
+      68000,
+      78000,
+      88000,
+      98000,
+      104000,
+      110000,
+      118000,
+      126000,
+      134000,
+      142000,
+      150000,
+      160000,
+      170000,
+      180000,
+      190000,
+      200000,
+      220000,
+      240000,
+      260000,
+      280000,
+      300000,
+      320000,
+      340000,
+      360000,
+      380000,
+      410000,
+      440000,
+      470000,
+      500000,
+      530000,
+      560000,
+      590000,
+      620000,
+      650000,
+      680000,
+      710000,
+      750000,
+      790000,
+      830000,
+      880000,
+      930000,
+      980000,
+      1030000,
+      1090000,
+      1150000,
+      1210000,
+      1270000,
+      1330000,
+      1390000
+    ],
+    "bonusCap": {
+      "fiscalYearTotal": 5730000,
+      "status": "verified",
+      "verifiedAt": "2026-07-07",
+      "note": "[確認済] 標準賞与額の上限は健保・介護・子育て支援金で年間573万円（毎年4/1〜翌3/31の累計）。R8料額表脚注で確認。"
+    }
+  },
+  "koseiNenkin": {
+    "gradeCount": 32,
+    "note": "厚年は健保等級4（88,000/厚年1級）〜35（650,000/厚年32級）に対応。ただし報酬月額の端の読み替えが公式表脚注にあり（下記boundaryOverride）。上限はkosei-nenkin.jsonのcapScheduleが優先（2027-09以降 68/71/75万等級が追加）。",
+    "derivedFromKenpo": {
+      "startIndex": 3,
+      "endIndex": 34
+    },
+    "boundaryOverride": {
+      "grade1": {
+        "kenpoGrade": 4,
+        "standardMonthly": 88000,
+        "min": null,
+        "max": 93000,
+        "note": "[確認済] 厚年1級の報酬月額は「93,000円未満」（健保4級の下限83,000ではなく下限なし）"
+      },
+      "grade32": {
+        "kenpoGrade": 35,
+        "standardMonthly": 650000,
+        "min": 635000,
+        "max": null,
+        "note": "[確認済] 厚年32級の報酬月額は「635,000円以上」（健保35級の上限665,000ではなく上限なし）"
+      }
+    }
+  },
+  "rounding": {
+    "status": "verified",
+    "verifiedAt": "2026-07-07",
+    "note": "[確認済 R8料額表脚注] 被保険者負担分の端数処理。①事業主が給与から控除する場合: 50銭以下=切捨/50銭超=切上。②被保険者が現金で事業主へ支払う場合: 50銭未満=切捨/50銭以上=切上。①②にかかわらず労使特約があれば特約に従う。納入告知書は合算後の円未満切捨。"
+  },
+  "ninkeiStandardMonthlyCap": {
+    "value": 320000,
+    "status": "verified",
+    "verifiedAt": "2026-07-07",
+    "note": "[確認済 R8料額表脚注] 令和8年度 任意継続被保険者の標準報酬月額の上限は320,000円。設計書§4の『30万円?要検証』を訂正（正しくは32万円）。任意継続料率は令和8年4月分〜適用。"
+  }
+}

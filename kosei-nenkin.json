@@ -1,0 +1,31 @@
+{
+  "institution": "shaho-kosei-nenkin",
+  "insurer": "nenkin-kikou",
+  "status": "verified",
+  "source": {
+    "url": "https://www.nenkin.go.jp/service/kounen/hokenryo/hoshu/20150515-01.html",
+    "capScheduleUrl": "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000147284_00024.html",
+    "verifiedAt": "2026-07-03"
+  },
+  "rate": {
+    "value": 0.183,
+    "validFrom": "2017-09",
+    "validTo": null,
+    "note": "平成29年9月以降固定。労使折半（本人9.15%）"
+  },
+  "gradeCount": 32,
+  "capSchedule": [
+    { "cap": 650000, "validFrom": "2020-09", "validTo": "2027-08" },
+    { "cap": 680000, "validFrom": "2027-09", "validTo": "2028-08" },
+    { "cap": 710000, "validFrom": "2028-09", "validTo": "2029-08" },
+    { "cap": 750000, "validFrom": "2029-09", "validTo": null }
+  ],
+  "capScheduleNote": "令和7年6月13日成立の年金制度改正法による段階的引き上げ。9月＝年度途中に変わるため、必ず対象月で解決すること",
+  "floor": 88000,
+  "bonusCap": {
+    "monthlyBonusCap": 1500000,
+    "status": "verified",
+    "verifiedAt": "2026-07-03",
+    "note": "標準賞与額＝税引前賞与から1,000円未満切捨。支給1回（同月複数回は合算）につき150万円上限。年金機構公式ページで確認済"
+  }
+}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>任意継続 vs 国民健康保険 どっちが得か比較｜社会保険の計算サイト</title>
+<meta name="description" content="退職後の健康保険は、協会けんぽの任意継続と、お住まいの市区町村の国民健康保険のどちらが安いか。任意継続の保険料（全額自己負担・上限あり）をその場で計算し、国保はお住まいの自治体の計算ページと並べて比較できます。">
+<link rel="canonical" href="https://shaho-keisan.jp/hikaku/">
+<style>
+  body{margin:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;color:#222;padding:24px 12px;}
+  .wrap{max-width:520px;margin:0 auto;background:#eef4ff;padding:28px 22px;border-radius:18px;border:1px solid #dbe6fb;box-shadow:0 10px 30px rgba(0,0,0,.05);box-sizing:border-box;}
+  .sitename{font-size:19px;font-weight:800;color:#111827;letter-spacing:.03em;text-align:center;margin-bottom:14px;}
+  h1{font-size:28px;font-weight:800;color:#111827;margin:0;line-height:1.25;text-align:center;}
+  .sub{font-size:13px;color:#64748b;margin-top:12px;text-align:center;line-height:1.6;}
+  .rate-badge{display:block;text-align:center;font-size:11px;color:#3182ad;font-weight:700;margin:12px 0 4px;}
+  .field-label{display:block;text-align:left;font-size:14px;font-weight:700;margin:16px 0 6px;color:#111827;}
+  input,select{width:100%;padding:12px;font-size:16px;font-weight:500;border:2px solid #cbd5e1;border-radius:12px;background:#fff;color:#0f172a;box-sizing:border-box;}
+  input:focus,select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+  .row{display:flex;gap:10px;}.row>div{flex:1;}
+  .hint{text-align:left;font-size:11px;color:#8595ad;margin-top:4px;line-height:1.5;}
+  .btn{width:100%;margin-top:18px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:#1d4ed8;border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(29,78,216,.28);}
+  .cols{display:flex;gap:12px;margin-top:18px;}
+  .card{flex:1;padding:16px;border-radius:14px;text-align:left;}
+  .card.nini{background:#fff;border:1px solid #bfdbfe;}
+  .card.kokuho{background:#fff;border:1px dashed #cbd5e1;}
+  .card h3{font-size:14px;font-weight:800;margin:0 0 8px;}
+  .card.nini h3{color:#1e3a8a;} .card.kokuho h3{color:#475569;}
+  .line{display:flex;justify-content:space-between;font-size:13px;color:#475569;padding:4px 0;border-bottom:1px dashed #e2e8f0;}
+  .line b{color:#0f172a;}
+  .amt{font-size:24px;font-weight:800;color:#1d4ed8;margin:6px 0 2px;}
+  .amt.muted{color:#94a3b8;font-size:16px;}
+  .year{font-size:11px;color:#64748b;}
+  .klink{display:inline-block;margin-top:10px;padding:9px 14px;background:#1d4ed8;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;}
+  .klink.disabled{background:#cbd5e1;pointer-events:none;}
+  .note{font-size:11px;color:#94a3b8;margin-top:12px;line-height:1.6;text-align:left;}
+  .flag{font-size:11px;color:#b45309;background:#fef3c7;border-radius:8px;padding:6px 10px;margin-top:8px;line-height:1.5;}
+  .err{color:#b91c1c;font-size:13px;font-weight:700;margin-top:12px;text-align:center;display:none;}
+  .src{font-size:10px;color:#a3adba;margin-top:14px;text-align:left;line-height:1.5;}
+  .src a{color:#8595ad;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="sitename">社会保険の計算サイト</div>
+    <h1>任意継続 vs 国民健康保険<br>どっちが得か比較</h1>
+    <div class="sub">退職後の健康保険。協会けんぽの<b>任意継続（全額自己負担）</b>を計算し、お住まいの市区町村の<b>国民健康保険</b>と並べて比較します。</div>
+    <div class="rate-badge" id="badge">令和8年度（2026）料率で計算</div>
+
+    <label class="field-label">お住まいの市区町村</label>
+    <input id="city" list="city-list" placeholder="例：世田谷区／横浜市／naha" autocomplete="off">
+    <datalist id="city-list"></datalist>
+    <div class="hint">全国1,700超の市区町村に対応。国保はお住まいの自治体の計算ページに引き継ぎます。</div>
+
+    <label class="field-label">退職時の標準報酬月額</label>
+    <select id="std"></select>
+    <div class="hint">給与の標準報酬月額（等級）。任意継続は上限（令和8年度＝320,000円）でクランプされます。</div>
+
+    <div class="row">
+      <div><label class="field-label">対象月</label><select id="month"></select></div>
+      <div><label class="field-label">年齢</label><input id="age" type="number" min="0" max="120" value="45"></div>
+    </div>
+    <div class="hint">40〜64歳は介護保険（第2号）が加算されます。</div>
+
+    <button class="btn" id="calc">保険料を計算して比較する</button>
+    <div class="err" id="err"></div>
+
+    <div class="cols" id="result" style="display:none">
+      <div class="card nini">
+        <h3>任意継続（協会けんぽ）</h3>
+        <div class="amt" id="nini-total">–</div>
+        <div class="year" id="nini-year"></div>
+        <div style="margin-top:8px">
+          <div class="line"><span>健康保険</span><b id="nini-health">–</b></div>
+          <div class="line"><span>介護保険</span><b id="nini-care">–</b></div>
+          <div class="line"><span>子育て支援金</span><b id="nini-shien">–</b></div>
+        </div>
+        <div class="flag" id="nini-flag" style="display:none"></div>
+      </div>
+      <div class="card kokuho">
+        <h3>国民健康保険</h3>
+        <div class="amt muted" id="kokuho-city">–</div>
+        <div class="year">自治体ごとに算定方式が異なります。お住まいの計算ページで正確に算定してください。</div>
+        <a class="klink" id="kokuho-link" href="#" target="_blank" rel="noopener">国保を計算する →</a>
+      </div>
+    </div>
+
+    <div class="note" id="disclaimer" style="display:none"></div>
+
+    <div class="src" id="src"></div>
+  </div>
+
+<script src="../js/core/shaho.js"></script>
+<script>
+(function(){
+  var DATA=null, CITIES=null, byName={};
+  var elErr=document.getElementById('err');
+  var fmt=function(n){return Math.round(n).toLocaleString()+' 円';};
+
+  function fail(msg){ elErr.textContent=msg; elErr.style.display='block'; }
+
+  // データ読込（fetch）。file:// では失敗し得るので明示メッセージ。
+  Promise.all([
+    fetch('../kenpo-2026.json').then(r=>r.json()),
+    fetch('../kosei-nenkin.json').then(r=>r.json()),
+    fetch('../koyo-2026.json').then(r=>r.json()),
+    fetch('../standard-monthly.json').then(r=>r.json()),
+    fetch('../hikaku-cities.json').then(r=>r.json())
+  ]).then(function(a){
+    DATA={kenpo:a[0], kosei:a[1], koyo:a[2], standard:a[3]};
+    CITIES=a[4].cities;
+    initCities(); initStd(); initMonths(); initSrc(a[0]);
+  }).catch(function(e){
+    fail('データの読み込みに失敗しました。GitHub Pages 等の http(s) 配信でご利用ください（ローカルの file:// では動きません）。');
+  });
+
+  function initCities(){
+    var dl=document.getElementById('city-list'), frag=document.createDocumentFragment();
+    CITIES.forEach(function(c){
+      byName[c.n]=c; byName[c.s]=c;
+      var o=document.createElement('option'); o.value=c.n+'（'+c.pn+'）'; o.dataset.slug=c.s;
+      frag.appendChild(o);
+    });
+    dl.appendChild(frag);
+  }
+  function initStd(){
+    var sel=document.getElementById('std');
+    DATA.standard.explicitBoundaries.forEach(function(b){
+      var o=document.createElement('option'); o.value=b.standardMonthly;
+      o.textContent=b.grade+'等級：'+b.standardMonthly.toLocaleString()+'円';
+      sel.appendChild(o);
+    });
+    sel.value=300000;
+  }
+  function initMonths(){
+    var sel=document.getElementById('month');
+    // 任意継続は4月分〜適用。R8の対象月（2026-04〜2027-02）を並べる。
+    var ms=['2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12','2027-01','2027-02'];
+    ms.forEach(function(m){ var o=document.createElement('option'); o.value=m;
+      o.textContent=m.replace('-','年')+'月分'; sel.appendChild(o); });
+    sel.value='2026-07';
+  }
+  function initSrc(kenpo){
+    document.getElementById('src').innerHTML='出典：協会けんぽ 令和8年度 都道府県別保険料率／任意継続の標準報酬上限（'+
+      (kenpo.niniKeizoku&&kenpo.niniKeizoku.verifiedAt||'')+'確認）。国保データ・計算は kokuho-keisan.jp（正本）に委譲。';
+  }
+
+  function resolveCityInput(){
+    var raw=document.getElementById('city').value.trim();
+    if(!raw) return null;
+    // 「世田谷区（東京都）」形式 or 生の名前/slug
+    var name=raw.replace(/（.*$/,'').trim();
+    return byName[name]||byName[raw]||null;
+  }
+
+  document.getElementById('calc').addEventListener('click', function(){
+    elErr.style.display='none';
+    if(!DATA){ fail('データ読み込み中です。'); return; }
+    var city=resolveCityInput();
+    if(!city){ fail('市区町村が見つかりません。一覧から選択してください。'); return; }
+    var std=parseInt(document.getElementById('std').value,10);
+    var age=parseInt(document.getElementById('age').value,10);
+    var month=document.getElementById('month').value;
+
+    // 片方向：1件レジストリを組み立てて engine の buildHikaku に委譲（URL/県解決はエンジン側）
+    var registry={municipalities:[{
+      citySlug:city.s, prefectureSlug:city.p, cityName:city.n, cityCode:city.c,
+      prefecture:city.pn, systems: city.k?['kokuho']:[]
+    }]};
+    var out;
+    try{
+      out=window.Shaho.buildHikaku({citySlug:city.s, formerStandardMonthly:std, age:age, targetMonth:month}, DATA, registry);
+    }catch(e){ fail('計算エラー：'+e.message); return; }
+    if(!out.ok){ fail(out.reason||'比較できませんでした。'); return; }
+
+    var nk=out.niniKeizoku;
+    document.getElementById('nini-total').textContent=fmt(nk.monthly.total)+' /月';
+    document.getElementById('nini-year').textContent='年額換算 約 '+fmt(nk.annual)+'（概算）';
+    document.getElementById('nini-health').textContent=fmt(nk.monthly.health);
+    document.getElementById('nini-care').textContent=nk.monthly.careApplies?fmt(nk.monthly.care):'対象外';
+    document.getElementById('nini-shien').textContent=fmt(nk.monthly.shienkin);
+    var flag=document.getElementById('nini-flag');
+    if(nk.capped){ flag.style.display='block';
+      flag.textContent='標準報酬月額は任意継続の上限 '+nk.cap.toLocaleString()+'円（第'+nk.capGrade+'級）でクランプされています。'; }
+    else flag.style.display='none';
+
+    document.getElementById('kokuho-city').textContent=city.n;
+    var link=document.getElementById('kokuho-link');
+    if(out.kokuho.hasKokuho){ link.href=out.kokuho.url; link.classList.remove('disabled'); link.textContent='国保を計算する →'; }
+    else { link.href='#'; link.classList.add('disabled'); link.textContent='この自治体は準備中'; }
+
+    document.getElementById('result').style.display='flex';
+    var dis=document.getElementById('disclaimer');
+    dis.style.display='block';
+    dis.textContent='※'+out.disclaimer+'（'+nk.annualNote+'）';
+  });
+})();
+</script>
+</body>
+</html>

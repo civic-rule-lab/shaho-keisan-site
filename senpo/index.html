@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>船員保険の保険料計算（在職・疾病任意継続）｜社会保険の計算サイト</title>
+<meta name="description" content="船員保険（全国健康保険協会 船員保険部）の保険料を計算します。在職船員の疾病保険料（被保険者負担は軽減後4.95%）・介護・子育て支援金・厚生年金、および退職後の疾病任意継続（全額自己負担）に対応。全国一律・令和8年度。">
+<link rel="canonical" href="https://shaho-keisan.jp/senpo/">
+<style>
+  body{margin:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;color:#222;padding:24px 12px;}
+  .wrap{max-width:520px;margin:0 auto;background:#eef4ff;padding:28px 22px;border-radius:18px;border:1px solid #dbe6fb;box-shadow:0 10px 30px rgba(0,0,0,.05);box-sizing:border-box;}
+  .sitename{font-size:19px;font-weight:800;color:#111827;letter-spacing:.03em;text-align:center;margin-bottom:14px;}
+  h1{font-size:30px;font-weight:800;color:#111827;margin:0;line-height:1.2;text-align:center;}
+  .sub{font-size:13px;color:#64748b;margin-top:12px;text-align:center;line-height:1.6;}
+  .rate-badge{display:inline-block;font-size:11px;color:#3182ad;font-weight:700;background:#d3eafd;border-radius:999px;padding:3px 12px;margin:12px auto 4px;}
+  .badge-wrap{text-align:center;}
+  .field-label{display:block;text-align:left;font-size:14px;font-weight:700;margin:16px 0 6px;color:#111827;}
+  input,select{width:100%;padding:12px;font-size:16px;font-weight:500;border:2px solid #cbd5e1;border-radius:12px;background:#fff;color:#0f172a;box-sizing:border-box;}
+  input:focus,select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+  .row{display:flex;gap:10px;}.row>div{flex:1;}
+  .hint{text-align:left;font-size:11px;color:#8595ad;margin-top:4px;line-height:1.5;}
+  .tabs{display:flex;gap:8px;margin-top:18px;}
+  .tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#64748b;cursor:pointer;}
+  .tab.on{background:#1d4ed8;color:#fff;border-color:#1d4ed8;}
+  .btn{width:100%;margin-top:16px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:#1d4ed8;border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(29,78,216,.28);}
+  .err{color:#b91c1c;font-size:13px;font-weight:700;margin-top:12px;text-align:center;display:none;}
+  .result{margin-top:18px;padding:16px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;text-align:left;display:none;}
+  .result h3{font-size:14px;font-weight:800;color:#111827;margin:0 0 4px;}
+  .result .who{font-size:11px;color:#64748b;margin-bottom:8px;}
+  .line{display:flex;justify-content:space-between;font-size:14px;color:#475569;padding:5px 0;border-bottom:1px dashed #e2e8f0;}
+  .line b{color:#0f172a;}
+  .line.off b{color:#94a3b8;font-weight:600;}
+  .total{display:flex;justify-content:space-between;font-size:16px;color:#111827;padding:9px 0 0;font-weight:800;}
+  .total span:last-child{color:#1d4ed8;}
+  .year{text-align:right;font-size:12px;color:#64748b;margin-top:2px;}
+  .flag{font-size:11px;color:#b45309;background:#fef3c7;border-radius:8px;padding:7px 10px;margin-top:10px;line-height:1.5;}
+  .note{font-size:11px;color:#94a3b8;margin-top:10px;line-height:1.6;}
+  .src{font-size:10px;color:#a3adba;margin-top:16px;line-height:1.5;}
+  .src a{color:#8595ad;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="sitename">社会保険の計算サイト</div>
+    <h1>船員保険の計算</h1>
+    <div class="sub">全国健康保険協会 船員保険部。<b>全国一律</b>（都道府県別なし）・令和8年度。</div>
+    <div class="badge-wrap"><span class="rate-badge" id="badge">在職船員 疾病 本人負担 4.95%（軽減後）</span></div>
+
+    <div class="tabs">
+      <div class="tab on" id="tab-z" data-mode="zaishoku">在職船員</div>
+      <div class="tab" id="tab-n" data-mode="ninkei">疾病任意継続（退職後）</div>
+    </div>
+
+    <label class="field-label">標準報酬月額</label>
+    <select id="std"></select>
+    <div class="hint" id="std-hint">在職船員は50等級。疾病任意継続は29等級・上限470,000円でクランプされます。</div>
+
+    <div class="row">
+      <div><label class="field-label">対象月</label><select id="month"></select></div>
+      <div><label class="field-label">年齢</label><input id="age" type="number" min="0" max="120" value="45"></div>
+    </div>
+    <div class="hint">40〜64歳は介護保険（第2号）が加算されます。</div>
+
+    <div id="koyo-wrap">
+      <label class="field-label">雇用保険 業種</label>
+      <select id="koyo"><option value="ippan">一般の事業</option></select>
+      <div class="hint">※船員の雇用保険区分は一般の事業率を流用しています（<b>要最終確認</b>）。</div>
+    </div>
+
+    <button class="btn" id="calc">保険料を計算する</button>
+    <div class="err" id="err"></div>
+
+    <div class="result" id="result">
+      <h3 id="r-title">–</h3>
+      <div class="who" id="r-who"></div>
+      <div class="line"><span id="l-health-label">健康保険（疾病）</span><b id="r-health">–</b></div>
+      <div class="line"><span>介護保険</span><b id="r-care">–</b></div>
+      <div class="line"><span>子育て支援金</span><b id="r-shien">–</b></div>
+      <div class="line" id="row-nenkin"><span>厚生年金</span><b id="r-nenkin">–</b></div>
+      <div class="line" id="row-koyo"><span>雇用保険</span><b id="r-koyo">–</b></div>
+      <div class="total"><span id="t-label">本人負担 合計（月額）</span><span id="r-total">–</span></div>
+      <div class="year" id="r-year"></div>
+      <div class="flag" id="r-flag" style="display:none"></div>
+      <div class="note" id="r-note"></div>
+    </div>
+
+    <div class="src" id="src"></div>
+  </div>
+
+<script src="../js/core/shaho.js"></script>
+<script>
+(function(){
+  var DATA=null, MODE='zaishoku';
+  var elErr=document.getElementById('err');
+  var fmt=function(n){return Math.round(n).toLocaleString()+' 円';};
+  function fail(msg){ elErr.textContent=msg; elErr.style.display='block'; }
+
+  Promise.all([
+    fetch('../senpo-2026.json').then(r=>r.json()),
+    fetch('../kosei-nenkin.json').then(r=>r.json()),
+    fetch('../koyo-2026.json').then(r=>r.json()),
+    fetch('../standard-monthly.json').then(r=>r.json()),
+    fetch('../kenpo-2026.json').then(r=>r.json())
+  ]).then(function(a){
+    DATA={senpo:a[0], kosei:a[1], koyo:a[2], standard:a[3], kenpo:a[4]};
+    initStd(); initMonths(); initSrc();
+  }).catch(function(){
+    fail('データの読み込みに失敗しました。GitHub Pages 等の http(s) 配信でご利用ください（file:// では動きません）。');
+  });
+
+  function initStd(){
+    var sel=document.getElementById('std');
+    DATA.standard.explicitBoundaries.forEach(function(b){
+      var o=document.createElement('option'); o.value=b.standardMonthly;
+      o.textContent=b.grade+'等級：'+b.standardMonthly.toLocaleString()+'円';
+      sel.appendChild(o);
+    });
+    sel.value=300000;
+  }
+  function initMonths(){
+    var sel=document.getElementById('month');
+    var ms=['2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12','2027-01','2027-02'];
+    ms.forEach(function(m){ var o=document.createElement('option'); o.value=m;
+      o.textContent=m.replace('-','年')+'月分'; sel.appendChild(o); });
+    sel.value='2026-07';
+  }
+  function initSrc(){
+    var s=DATA.senpo.source||{};
+    document.getElementById('src').innerHTML='出典：全国健康保険協会 船員保険部 令和8年度保険料率（'+(s.verifiedAt||'')+'確認）。'+
+      '在職＝疾病本人4.95%（軽減後・災害は全額船主）／疾病任意継続＝一般10.33%全額自己負担・上限470,000円。厚年・雇用は共通制度。';
+  }
+
+  // タブ切替
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+      t.classList.add('on'); MODE=t.dataset.mode;
+      document.getElementById('badge').textContent = MODE==='zaishoku'
+        ? '在職船員 疾病 本人負担 4.95%（軽減後）' : '疾病任意継続 一般10.33%（全額自己負担）';
+      document.getElementById('koyo-wrap').style.display = MODE==='zaishoku'?'block':'none';
+      document.getElementById('row-nenkin').style.display = MODE==='zaishoku'?'flex':'none';
+      document.getElementById('row-koyo').style.display = MODE==='zaishoku'?'flex':'none';
+      document.getElementById('result').style.display='none';
+    });
+  });
+
+  document.getElementById('calc').addEventListener('click', function(){
+    elErr.style.display='none';
+    if(!DATA){ fail('データ読み込み中です。'); return; }
+    var std=parseInt(document.getElementById('std').value,10);
+    var age=parseInt(document.getElementById('age').value,10);
+    var month=document.getElementById('month').value;
+    var R=document.getElementById('result');
+
+    try{
+      if(MODE==='zaishoku'){
+        var koyo=document.getElementById('koyo').value;
+        var r=window.Shaho.calculateShaho({monthlySalary:std, targetMonth:month, healthProvider:'senpo', age:age, koyoCategory:koyo}, DATA);
+        document.getElementById('r-title').textContent='在職船員の保険料';
+        document.getElementById('r-who').textContent='船舶所有者に雇用される在職の船員被保険者（本人負担・月額）';
+        document.getElementById('l-health-label').textContent='健康保険（疾病・本人4.95%）';
+        document.getElementById('r-health').textContent=fmt(r.health.employee);
+        setCare(r.care);
+        document.getElementById('r-shien').textContent = r.shienkin.employee>0?fmt(r.shienkin.employee):'対象外';
+        document.getElementById('r-nenkin').textContent=fmt(r.koseiNenkin.employee);
+        var koyoEl=document.getElementById('r-koyo');
+        if(r.koyo.applies){ koyoEl.textContent=fmt(r.koyo.employee); document.getElementById('row-koyo').classList.remove('off'); }
+        else { koyoEl.textContent='未計算（適用期間外）'; document.getElementById('row-koyo').classList.add('off'); }
+        var total=r.health.employee+(r.care.applies?r.care.employee:0)+r.shienkin.employee+r.koseiNenkin.employee+r.koyo.employee;
+        document.getElementById('t-label').textContent='本人負担 合計（月額）';
+        document.getElementById('r-total').textContent=fmt(total)+' /月';
+        document.getElementById('r-year').textContent='';
+        var flag=document.getElementById('r-flag'); flag.style.display='block';
+        flag.innerHTML='災害保健福祉保険料率（'+(r.employerOnly[0]?fmt(r.employerOnly[0].full):'-')+'）は<b>全額船主負担・本人負担なし</b>。雇用保険の船員区分は一般率を流用（要最終確認）。';
+        document.getElementById('r-note').textContent=r.meta.koyo.confirmationNote||'';
+      } else {
+        var n=window.Shaho.calcNiniKeizoku({healthProvider:'senpo', formerStandardMonthly:std, age:age, targetMonth:month}, DATA);
+        document.getElementById('r-title').textContent='疾病任意継続の保険料';
+        document.getElementById('r-who').textContent='退職後の疾病任意継続被保険者（全額自己負担・月額）';
+        document.getElementById('l-health-label').textContent='健康保険（一般10.33%・全額自己負担）';
+        document.getElementById('r-health').textContent=fmt(n.monthly.health);
+        setCare({applies:n.monthly.careApplies, employee:n.monthly.care, reason:n.monthly.careReason});
+        document.getElementById('r-shien').textContent = n.monthly.shienkin>0?fmt(n.monthly.shienkin):'対象外';
+        document.getElementById('t-label').textContent='保険料 合計（月額・全額自己負担）';
+        document.getElementById('r-total').textContent=fmt(n.monthly.total)+' /月';
+        document.getElementById('r-year').textContent='年額換算 約 '+fmt(n.annual)+'（概算）';
+        var flag2=document.getElementById('r-flag');
+        if(n.capped){ flag2.style.display='block';
+          flag2.textContent='標準報酬月額は疾病任意継続の上限 '+n.cap.toLocaleString()+'円（第'+n.capGrade+'級）でクランプされています。'; }
+        else flag2.style.display='none';
+        document.getElementById('r-note').textContent=n.annualNote;
+      }
+      R.style.display='block';
+    }catch(e){ fail('計算エラー：'+e.message); }
+  });
+
+  function setCare(care){
+    var el=document.getElementById('r-care');
+    if(care.applies){ el.textContent=fmt(care.employee); }
+    else { el.textContent = /over-64/.test(care.reason||'')?'対象外（65歳以上）':(/under-40/.test(care.reason||'')?'対象外（40歳未満）':'対象外'); }
+  }
+})();
+</script>
+</body>
+</html>

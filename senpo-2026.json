@@ -1,0 +1,100 @@
+{
+  "institution": "shaho-senpo",
+  "insurer": "kyoukaikenpo-senpo",
+  "fiscalYear": 2026,
+  "era": "R8",
+  "status": "verified",
+  "scope": "全国一律（都道府県別なし）",
+  "source": {
+    "zaishokuLeaflet": "https://www.kyoukaikenpo.or.jp/senpo/assets/R8hokenryouritsuleafretsenpakusyoyuusya.pdf",
+    "ninkeiLeaflet": "https://www.kyoukaikenpo.or.jp/senpo/assets/R8hokenryouritsuleafretninkei.pdf",
+    "ratePage": "https://www.kyoukaikenpo.or.jp/senpo/g7/cat710/cat340/r8ryouritsu/",
+    "verifiedAt": "2026-07-08",
+    "note": "全国健康保険協会 船員保険部の公式PDF（在職船員向け／疾病任意継続向け）を本人がChromeで確認・共有し転記。2026-07-08"
+  },
+  "notes": [
+    "全国一律（都道府県別なし）＝47県ページの骨格に乗らない。/senpo/ 単独ページ想定（shaho-design.md §7-8）",
+    "被保険者の疾病保険料率は軽減措置で4.95%（＝疾病総率10.00%÷2＝5.05% から0.1%軽減）。協会けんぽの『総率÷2』ロジックは使えず専用処理が必須（healthProvider:'senpo'）",
+    "災害保健福祉保険料率は全額船主負担＝被保険者負担なし",
+    "在職船員は標準報酬50等級（健保と同じ）、疾病任意継続は29等級・上限47万円",
+    "雇用保険は船員も koyo-2026.json の一般の事業率を適用見込み（koyo crossCheck）。[要最終確認]"
+  ],
+
+  "zaishoku": {
+    "label": "在職の船員被保険者（船舶所有者に雇用）",
+    "generalRate": 0.1105,
+    "generalRateNote": "一般保険料率＝疾病保険料率10.00%＋災害保健福祉保険料率1.05%。R7から変更なし",
+    "shippei": {
+      "total": 0.10,
+      "employee": 0.0495,
+      "shipowner": 0.0505,
+      "basic": 0.0698,
+      "specific": 0.0302,
+      "note": "疾病保険料率。船主と被保険者で折半だが、被保険者負担は軽減措置で5.05→4.95%（0.1%軽減）。内訳＝基本6.98%＋特定3.02%"
+    },
+    "saigaiHokenFukushi": {
+      "total": 0.0105,
+      "employee": 0,
+      "shipowner": 0.0105,
+      "note": "災害保健福祉保険料率。全額船主負担・被保険者負担なし"
+    },
+    "standardGradeCount": 50,
+    "standardGradeRef": "standard-monthly.json の健保等級（1〜50・58,000〜1,390,000）と同一",
+    "validFrom": "2026-03",
+    "validTo": "2027-02"
+  },
+
+  "care": {
+    "rate": 0.0176,
+    "employee": 0.0088,
+    "appliesTo": "age40to64",
+    "validFrom": "2026-03",
+    "validTo": "2027-02",
+    "prevRate": 0.0157,
+    "note": "介護保険料率（介護第2号・40〜64歳）。船主と被保険者で折半。R8は1.76%（R7の1.57%から。令和8年3月分〜適用）"
+  },
+
+  "shienkin": {
+    "rate": 0.0023,
+    "employee": 0.00115,
+    "validFrom": "2026-04",
+    "validTo": "2027-03",
+    "note": "子ども・子育て支援金率。船主と被保険者で折半。令和8年4月分（5月納付分）から。健保本体と1ヶ月ずれる"
+  },
+
+  "koseiNenkin": {
+    "rate": 0.183,
+    "employee": 0.0915,
+    "note": "厚生年金保険料（船員）。一般の厚年と同じ18.300%・折半9.150%。kosei-nenkin.json の上限スケジュールを共用"
+  },
+
+  "bonusCap": {
+    "senpoCareShienkinYearYen": 5730000,
+    "koseiMonthYen": 1500000,
+    "note": "標準賞与額（1,000円未満切捨）の上限。船員保険料・介護・子ども子育て支援金は年間573万円（毎年4/1〜翌3/31の累計）、厚年・子ども子育て拠出金は月間150万円"
+  },
+
+  "roundingNote": "被保険者負担分の端数：50銭以下切捨・50銭超切上（公式脚注①）",
+
+  "ninkei": {
+    "label": "疾病任意継続被保険者（船員・退職後の任意継続）＝全額自己負担（船主負担なし）",
+    "generalRate": 0.1033,
+    "generalRateNote": "一般保険料率＝疾病保険料率10.00%＋災害保健福祉保険料率0.33%。R7から変更なし",
+    "shippeiRate": 0.10,
+    "saigaiHokenFukushiRate": 0.0033,
+    "careAppliedTotalRate": 0.1209,
+    "shienkinRate": 0.0023,
+    "capStandardMonthly": 470000,
+    "capGrade": 29,
+    "gradeRange": "1〜29等級（58,000〜470,000）",
+    "validFrom": "2026-04",
+    "note": "疾病任意継続は船主負担がないため全額被保険者負担。介護第2号該当は12.09%（一般10.33%＋介護1.76%）。標準報酬月額上限は47万円"
+  },
+
+  "koyo": {
+    "ref": "koyo-2026.json",
+    "categoryHint": "ippan",
+    "status": "unconfirmed",
+    "note": "船員の雇用保険は『一般の事業』率を流用する見込み（koyo crossCheck）。[要最終確認]"
+  }
+}
