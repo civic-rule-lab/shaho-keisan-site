@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="石川県の協会けんぽ健康保険料率は9.70%（令和8年度・労使合算）。報酬月額から健康保険・厚生年金・雇用保険の本人負担（月額・賞与）を対象月ベースで計算。退職後の任意継続 vs 国民健康保険の比較にも対応。">
+<link rel="canonical" href="https://shaho-keisan.jp/ishikawa/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="石川県の社会保険料はいくら？協会けんぽ・厚生年金・雇用保険の計算【令和8年度】">
+<meta property="og:description" content="石川県の協会けんぽ健康保険料率は9.70%（令和8年度・労使合算）。報酬月額から健康保険・厚生年金・雇用保険の本人負担（月額・賞与）を対象月ベースで計算。退職後の任意継続 vs 国民健康保険の比較にも対応。">
+<meta property="og:url" content="https://shaho-keisan.jp/ishikawa/">
+<meta property="og:site_name" content="社会保険の計算サイト">
+<meta property="og:locale" content="ja_JP">
+<title>石川県の社会保険料はいくら？協会けんぽ・厚生年金・雇用保険の計算【令和8年度】</title>
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"社会保険の計算サイト","item":"https://shaho-keisan.jp/"},{"@type":"ListItem","position":2,"name":"石川県","item":"https://shaho-keisan.jp/ishikawa/"}]},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"石川県の協会けんぽ健康保険料率（令和8年度）は？","acceptedAnswer":{"@type":"Answer","text":"石川県の令和8年度（2026）協会けんぽ健康保険料率は9.70%（労使合算）です。本人負担はその半分。40〜64歳は介護保険料1.62%が加わります。"}},{"@type":"Question","name":"厚生年金・雇用保険の料率は都道府県で違いますか？","acceptedAnswer":{"@type":"Answer","text":"厚生年金（18.3%）・雇用保険・子育て支援金は全国一律です。都道府県で異なるのは協会けんぽの健康保険料率のみです。"}}]}]</script>
+<style>
+  body{margin:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:#222;padding:24px 12px;}
+  .wrap{max-width:560px;margin:0 auto;background:#eef4ff;padding:26px 22px 30px;border-radius:18px;border:1px solid #dbe6fb;box-shadow:0 10px 30px rgba(0,0,0,.05);box-sizing:border-box;}
+  .sitename{font-size:19px;font-weight:800;color:#111827;letter-spacing:.03em;text-align:center;margin-bottom:14px;}
+  h1{font-size:34px;font-weight:800;color:#111827;margin:6px 0;line-height:1.15;text-align:center;}
+  .sub{font-size:13px;color:#64748b;margin-top:8px;text-align:center;line-height:1.7;}
+  .rate-badge{display:block;text-align:center;font-size:12px;color:#3182ad;font-weight:700;background:#d3eafd;border-radius:999px;padding:4px 12px;margin:14px auto 4px;width:fit-content;}
+  .field-label{display:block;text-align:left;font-size:14px;font-weight:700;margin:16px 0 6px;color:#111827;}
+  input,select{width:100%;padding:12px;font-size:16px;font-weight:500;border:2px solid #cbd5e1;border-radius:12px;background:#fff;color:#0f172a;box-sizing:border-box;}
+  input:focus,select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+  .row{display:flex;gap:10px;}.row>div{flex:1;}
+  .bonus-row{margin-top:14px;padding-top:12px;border-top:1px dashed #cdd9ef;}
+  .hint{text-align:left;font-size:11px;color:#8595ad;margin-top:4px;line-height:1.5;}
+  .btn{width:100%;margin-top:18px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:#1d4ed8;border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(29,78,216,.28);}
+  .err{color:#b91c1c;font-size:13px;font-weight:700;margin-top:12px;text-align:center;display:none;}
+  .result{margin-top:18px;padding:16px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;text-align:left;display:none;}
+  .result h3{font-size:13px;font-weight:700;color:#111827;margin:0 0 8px;}
+  .line{display:flex;justify-content:space-between;font-size:14px;color:#475569;padding:6px 0;border-bottom:1px dashed #e2e8f0;}
+  .line b{color:#0f172a;}
+  .total{display:flex;justify-content:space-between;font-size:16px;color:#111827;padding:10px 0 0;font-weight:800;}
+  .total span:last-child{color:#1d4ed8;}
+  .yearline{text-align:right;font-size:12px;color:#64748b;margin-top:4px;}
+  .split{font-size:11px;color:#94a3b8;margin-top:6px;line-height:1.5;}
+  .bonus-res{margin-top:10px;padding:15px;background:#fdf6ec;border:1px solid #f5d9a8;border-radius:12px;text-align:left;display:none;}
+  .bonus-res h3{font-size:13px;font-weight:700;color:#92600b;margin:0 0 8px;}
+  .bonus-res .line{color:#7c5306;border-bottom:1px dashed #f0e0c0;}
+  .bonus-res .total{color:#92600b;font-size:15px;}
+  .bonus-res .note{font-size:11px;color:#b98a3c;margin-top:6px;}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+  th,td{padding:6px 6px;border-bottom:1px solid #e5e7eb;text-align:right;white-space:nowrap;}
+  th{color:#64748b;font-weight:700;background:#f8fafc;}
+  td.tt{font-weight:800;color:#1d4ed8;} td.rg{color:#94a3b8;font-size:11px;}
+  .sec{margin-top:16px;padding:15px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;text-align:left;}
+  .sec h2{font-size:14px;font-weight:800;color:#111827;margin:0 0 6px;}
+  .sec .lead{font-size:12px;color:#64748b;margin:0 0 8px;line-height:1.6;}
+  .hyou-link{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#1d4ed8;text-decoration:none;}
+  .compare{margin-top:14px;padding:16px;background:#e6efff;border:1px solid #bfdbfe;border-radius:14px;text-align:left;}
+  .compare .t{font-size:15px;font-weight:800;color:#1e3a8a;margin-bottom:4px;}
+  .compare p{font-size:12px;color:#475569;line-height:1.5;margin:0 0 10px;}
+  .compare a{display:inline-block;padding:9px 14px;background:#fff;border:1px solid #1d4ed8;border-radius:10px;color:#1d4ed8;text-decoration:none;font-weight:700;font-size:13px;}
+  .switch{margin-top:16px;font-size:12px;color:#64748b;text-align:center;}
+  .switch select{width:auto;display:inline-block;font-size:13px;padding:5px 8px;margin-left:6px;border:1px solid #cbd5e1;border-radius:8px;color:#1d4ed8;}
+  .related{margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .related a{padding:7px 13px;background:#fff;border:1px solid #dbe3ee;border-radius:999px;color:#64748b;text-decoration:none;font-size:12px;font-weight:600;}
+  .src{font-size:10px;color:#a3adba;margin-top:16px;line-height:1.6;text-align:left;}
+  .src a{color:#8595ad;}
+  .bc{font-size:11px;color:#94a3b8;margin-bottom:6px;}.bc a{color:#8595ad;text-decoration:none;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="bc"><a href="/">社会保険の計算サイト</a> ＞ 石川県</div>
+    <div class="sitename">社会保険の計算サイト</div>
+    <h1>石川県</h1>
+    <div class="sub">協会けんぽ健保・厚生年金・雇用保険をまとめて計算</div>
+    <div class="rate-badge">令和8年度・健保料率 9.70%（労使合算）</div>
+
+    <label class="field-label" for="salary">報酬月額（円）</label>
+    <input id="salary" type="text" inputmode="numeric" value="300,000">
+
+    <div class="row">
+      <div><label class="field-label" for="month">対象月</label><select id="month"><option value="2026-04">2026年4月分</option><option value="2026-05">2026年5月分</option><option value="2026-06">2026年6月分</option><option value="2026-07" selected>2026年7月分</option><option value="2026-08">2026年8月分</option><option value="2026-09">2026年9月分</option><option value="2026-10">2026年10月分</option><option value="2026-11">2026年11月分</option><option value="2026-12">2026年12月分</option><option value="2027-01">2027年1月分</option><option value="2027-02">2027年2月分</option></select></div>
+      <div><label class="field-label" for="age">年齢</label><input id="age" type="text" inputmode="numeric" value="40"></div>
+    </div>
+
+    <label class="field-label" for="koyo">雇用保険 業種</label>
+    <select id="koyo"><option value="ippan" selected>一般の事業</option><option value="nourin">農林水産・清酒製造の事業</option><option value="kensetsu">建設の事業</option></select>
+
+    <div class="bonus-row">
+      <label class="field-label" for="bonus" style="margin-top:0;">賞与（任意・支給月のみ）</label>
+      <input id="bonus" type="text" inputmode="numeric" placeholder="今回の支給額">
+      <div class="hint">入れた月だけ賞与分も計算します（賞与は支給月のみ控除。月額の合計には混ぜません）。</div>
+    </div>
+
+    <button class="btn" id="calc">保険料を計算する</button>
+    <div class="err" id="err"></div>
+
+    <div class="result" id="result">
+      <h3>毎月の給与から（本人負担・月額）</h3>
+      <div class="line"><span id="r-kenpo-label">健康保険（介護・子育て支援金込）</span><b id="r-kenpo">–</b></div>
+      <div class="line"><span>厚生年金</span><b id="r-nenkin">–</b></div>
+      <div class="line"><span>雇用保険</span><b id="r-koyo">–</b></div>
+      <div class="total"><span>月額 合計</span><span id="r-total">–</span></div>
+      <div class="yearline" id="r-year"></div>
+      <div class="split">労使折半（表示は本人負担分）。健康保険・厚生年金は会社も概ね同額を負担します。金額は概算です。</div>
+    </div>
+
+    <div class="bonus-res" id="bonus-res">
+      <h3>この賞与からの控除（本人負担・支給月のみ）</h3>
+      <div class="line"><span>健康保険（介護・支援金込）</span><b id="b-kenpo">–</b></div>
+      <div class="line"><span>厚生年金</span><b id="b-nenkin">–</b></div>
+      <div class="line"><span>雇用保険</span><b id="b-koyo">–</b></div>
+      <div class="total"><span>賞与からの控除</span><span id="b-total">–</span></div>
+      <div class="note">標準賞与額には上限があります（健保系＝年度573万・厚年＝1回150万）。</div>
+    </div>
+
+    <div class="sec">
+      <h2>石川県の保険料 早見表（本人負担・月額）</h2>
+      <p class="lead">40歳・一般の事業・令和8年7月分の概算（健保は介護・支援金込）。</p>
+      <table>
+        <thead><tr><th>報酬月額</th><th>健保</th><th>厚年</th><th>雇用</th><th>月額計</th></tr></thead>
+        <tbody><tr><td>200,000</td><td>11,550</td><td>18,300</td><td>1,000</td><td class="tt">30,850</td></tr><tr><td>300,000</td><td>17,325</td><td>27,450</td><td>1,500</td><td class="tt">46,275</td></tr><tr><td>410,000</td><td>23,678</td><td>37,515</td><td>2,050</td><td class="tt">63,243</td></tr><tr><td>600,000</td><td>34,073</td><td>53,985</td><td>3,000</td><td class="tt">91,058</td></tr></tbody>
+      </table>
+      <a class="hyou-link" href="hyou.html">標準報酬別の保険料 料額表（全50等級）を見る →</a>
+    </div>
+
+    <div class="compare">
+      <div class="t">退職予定ですか？ 任意継続 vs 国民健康保険</div>
+      <p>お住まいの市区町村の国保料と、協会けんぽの任意継続（全額自己負担・上限あり）を並べて比較します。</p>
+      <a href="/hikaku/">どっちが得か比較する →</a>
+    </div>
+
+    <div class="switch">他の都道府県：<select onchange="if(this.value)location.href='/'+this.value+'/';"><option value="hokkaido">北海道</option><option value="aomori">青森県</option><option value="iwate">岩手県</option><option value="miyagi">宮城県</option><option value="akita">秋田県</option><option value="yamagata">山形県</option><option value="fukushima">福島県</option><option value="ibaraki">茨城県</option><option value="tochigi">栃木県</option><option value="gunma">群馬県</option><option value="saitama">埼玉県</option><option value="chiba">千葉県</option><option value="tokyo">東京都</option><option value="kanagawa">神奈川県</option><option value="niigata">新潟県</option><option value="toyama">富山県</option><option value="ishikawa" selected>石川県</option><option value="fukui">福井県</option><option value="yamanashi">山梨県</option><option value="nagano">長野県</option><option value="gifu">岐阜県</option><option value="shizuoka">静岡県</option><option value="aichi">愛知県</option><option value="mie">三重県</option><option value="shiga">滋賀県</option><option value="kyoto">京都府</option><option value="osaka">大阪府</option><option value="hyogo">兵庫県</option><option value="nara">奈良県</option><option value="wakayama">和歌山県</option><option value="tottori">鳥取県</option><option value="shimane">島根県</option><option value="okayama">岡山県</option><option value="hiroshima">広島県</option><option value="yamaguchi">山口県</option><option value="tokushima">徳島県</option><option value="kagawa">香川県</option><option value="ehime">愛媛県</option><option value="kochi">高知県</option><option value="fukuoka">福岡県</option><option value="saga">佐賀県</option><option value="nagasaki">長崎県</option><option value="kumamoto">熊本県</option><option value="oita">大分県</option><option value="miyazaki">宮崎県</option><option value="kagoshima">鹿児島県</option><option value="okinawa">沖縄県</option></select></div>
+
+    <div class="related">
+      <a href="https://kokuho-keisan.jp/" target="_blank" rel="noopener">国保計算 ↗</a>
+      <a href="https://seido-keisan.jp/" target="_blank" rel="noopener">まとめて試算 ↗</a>
+      <a href="/senpo/">船員保険</a>
+    </div>
+
+    <div class="src">
+      出典：全国健康保険協会 令和8年度 都道府県別保険料率（2026-07-03確認）／厚生労働省 雇用保険料率／日本年金機構 厚生年金保険料率。
+      料率は対象月（○月分）で解決しています。組合健保の方は各組合の通知をご確認ください。実際の控除額は勤務先・通知でご確認ください。
+    </div>
+    <div class="src" style="border-top:1px solid #dbe6fb;margin-top:14px;padding-top:12px;">
+      関連サイト：<a href="https://seido-keisan.jp/">制度計算（税金・保険料まるごと）↗</a> ／ <a href="https://kokuho-keisan.jp/">国民健康保険の計算 ↗</a> ／ <a href="/">社会保険トップ</a>
+    </div>
+  </div>
+
+<script>window.__PREF__={"slug":"ishikawa","name":"石川県","rate":0.097};</script>
+<script src="../js/core/shaho.js"></script>
+<script>(function clientMain() {
+  'use strict';
+  var PREF = window.__PREF__;
+  var DATA = null;
+  var elErr = document.getElementById('err');
+  function yen(n){ return Math.round(n).toLocaleString('ja-JP') + ' 円'; }
+  function fail(m){ elErr.textContent = m; elErr.style.display = 'block'; }
+  function num(id){ var el = document.getElementById(id); if(!el) return 0; var v = (el.value||'').replace(/[^0-9]/g,''); return v ? parseInt(v,10) : 0; }
+  // 数字入力のカンマ整形
+  ['salary','bonus'].forEach(function(id){
+    var el = document.getElementById(id); if(!el) return;
+    el.addEventListener('blur', function(){ var v = (el.value||'').replace(/[^0-9]/g,''); el.value = v ? parseInt(v,10).toLocaleString('ja-JP') : ''; });
+  });
+  Promise.all([
+    fetch('../kenpo-2026.json').then(function(r){ return r.json(); }),
+    fetch('../kosei-nenkin.json').then(function(r){ return r.json(); }),
+    fetch('../koyo-2026.json').then(function(r){ return r.json(); }),
+    fetch('../standard-monthly.json').then(function(r){ return r.json(); })
+  ]).then(function(a){ DATA = { kenpo:a[0], kosei:a[1], koyo:a[2], standard:a[3] }; })
+    .catch(function(){ fail('データの読み込みに失敗しました。http(s) 配信でご利用ください（ローカルの file:// では動きません）。'); });
+
+  document.getElementById('calc').addEventListener('click', function(){
+    elErr.style.display = 'none';
+    if(!DATA){ fail('データを読み込み中です。数秒後にもう一度お試しください。'); return; }
+    var salary = num('salary');
+    if(!salary){ fail('報酬月額を入力してください。'); return; }
+    var age = num('age') || 40;
+    var month = document.getElementById('month').value;
+    var cat = document.getElementById('koyo').value;
+    var bonus = num('bonus');
+    var input = { monthlySalary: salary, targetMonth: month, prefSlug: PREF.slug, age: age, koyoCategory: cat };
+    if(bonus > 0) input.bonus = bonus;
+    var r;
+    try { r = window.Shaho.calculateShaho(input, DATA); }
+    catch(e){ fail('計算できませんでした：' + e.message); return; }
+
+    var kenpoR = Math.round(r.healthWithCare.employee + r.shienkin.employee);
+    var nenkinR = Math.round(r.koseiNenkin.employee);
+    var koyoR = r.koyo.applies ? Math.round(r.koyo.employee) : 0;
+    var total = kenpoR + nenkinR + koyoR;
+    document.getElementById('r-kenpo-label').textContent = r.care.applies ? '健康保険（介護・子育て支援金込）' : '健康保険（子育て支援金込）';
+    document.getElementById('r-kenpo').textContent = yen(kenpoR);
+    document.getElementById('r-nenkin').textContent = yen(nenkinR);
+    document.getElementById('r-koyo').textContent = r.koyo.applies ? yen(koyoR) : '未計算';
+    document.getElementById('r-total').textContent = yen(total);
+    document.getElementById('r-year').textContent = '年額換算 約 ' + yen(total * 12) + '（賞与を除く）';
+    document.getElementById('result').style.display = 'block';
+
+    var bbox = document.getElementById('bonus-res');
+    if(bonus > 0 && r.bonus){
+      var b = r.bonus;
+      var bKenpo = Math.round(b.health.employee + b.care.employee + b.shienkin.employee);
+      var bNenkin = Math.round(b.koseiNenkin.employee);
+      var bKoyo = (b.koyo && b.koyo.applies) ? Math.round(b.koyo.employee) : 0;
+      document.getElementById('b-kenpo').textContent = yen(bKenpo);
+      document.getElementById('b-nenkin').textContent = yen(bNenkin);
+      document.getElementById('b-koyo').textContent = (b.koyo && b.koyo.applies) ? yen(bKoyo) : '未計算';
+      document.getElementById('b-total').textContent = yen(bKenpo + bNenkin + bKoyo);
+      bbox.style.display = 'block';
+    } else { bbox.style.display = 'none'; }
+  });
+})();</script>
+</body>
+</html>
