@@ -151,12 +151,34 @@
   var elErr = document.getElementById('err');
   function yen(n){ return Math.round(n).toLocaleString('ja-JP') + ' 円'; }
   function fail(m){ elErr.textContent = m; elErr.style.display = 'block'; }
-  function num(id){ var el = document.getElementById(id); if(!el) return 0; var v = (el.value||'').replace(/[^0-9]/g,''); return v ? parseInt(v,10) : 0; }
-  // 数字入力のカンマ整形
-  ['salary','bonus'].forEach(function(id){
+  function toHalfWidth(str){
+    return String(str)
+      .replace(/[０-９]/g, function(s){ return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); })
+      .replace(/[，、,]/g, "");
+  }
+  function num(id){ var el = document.getElementById(id); if(!el) return 0; var v = toHalfWidth(el.value||'').replace(/[^0-9]/g,''); return v ? parseInt(v,10) : 0; }
+  // 数字入力: 全角→半角ライブ変換・カンマは欄を出た時のみ(金額欄のみ) — civic-site-common-rules/ui-rules 準拠(2026-08-02)
+  function setupNumericInput(id, options){
     var el = document.getElementById(id); if(!el) return;
-    el.addEventListener('blur', function(){ var v = (el.value||'').replace(/[^0-9]/g,''); el.value = v ? parseInt(v,10).toLocaleString('ja-JP') : ''; });
-  });
+    var withCommas = !!(options && options.withCommas);
+    var isComposing = false;
+    function clean(){ if(isComposing) return; el.value = toHalfWidth(el.value).replace(/[^0-9]/g, ""); }
+    function commit(){
+      var raw = toHalfWidth(el.value).replace(/[^0-9]/g, "");
+      if(!raw){ el.value = ""; return; }
+      el.value = withCommas ? Number(raw).toLocaleString("ja-JP") : raw;
+    }
+    el.addEventListener('compositionstart', function(){ isComposing = true; });
+    el.addEventListener('compositionend', function(){ isComposing = false; setTimeout(commit, 0); });
+    el.addEventListener('input', clean);
+    el.addEventListener('blur', commit);
+    el.addEventListener('keydown', function(e){
+      if(e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E'){ e.preventDefault(); }
+    });
+  }
+  setupNumericInput('salary', {withCommas:true});
+  setupNumericInput('bonus', {withCommas:true});
+  setupNumericInput('age');
   Promise.all([
     fetch('../kenpo-2026.json').then(function(r){ return r.json(); }),
     fetch('../kosei-nenkin.json').then(function(r){ return r.json(); }),
