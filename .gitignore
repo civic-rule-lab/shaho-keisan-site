@@ -1,1 +1,13 @@
 .DS_Store
+
+# --- 秘密情報・環境ファイルの共通除外（2026-08-30 追加）---
+.env
+.env.*
+*.pem
+*.key
+*.secret
+.wrangler/
+wrangler-account*.json
+cf.json
+.session/
+node_modules/
