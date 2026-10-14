@@ -71,19 +71,19 @@
     <div class="rate-badge">令和8年度・健保料率 9.85%（労使合算）</div>
 
     <label class="field-label" for="salary">報酬月額（円）</label>
-    <input id="salary" type="text" inputmode="numeric" value="300,000">
+    <input id="salary" data-step="1" type="text" inputmode="numeric" value="300,000">
 
     <div class="row">
-      <div><label class="field-label" for="month">対象月</label><select id="month"><option value="2026-04">2026年4月分</option><option value="2026-05">2026年5月分</option><option value="2026-06">2026年6月分</option><option value="2026-07" selected>2026年7月分</option><option value="2026-08">2026年8月分</option><option value="2026-09">2026年9月分</option><option value="2026-10">2026年10月分</option><option value="2026-11">2026年11月分</option><option value="2026-12">2026年12月分</option><option value="2027-01">2027年1月分</option><option value="2027-02">2027年2月分</option></select></div>
-      <div><label class="field-label" for="age">年齢</label><input id="age" type="text" inputmode="numeric" value="40"></div>
+      <div><label class="field-label" for="month">対象月</label><select id="month" data-step="2a"><option value="2026-04">2026年4月分</option><option value="2026-05">2026年5月分</option><option value="2026-06">2026年6月分</option><option value="2026-07" selected>2026年7月分</option><option value="2026-08">2026年8月分</option><option value="2026-09">2026年9月分</option><option value="2026-10">2026年10月分</option><option value="2026-11">2026年11月分</option><option value="2026-12">2026年12月分</option><option value="2027-01">2027年1月分</option><option value="2027-02">2027年2月分</option></select></div>
+      <div><label class="field-label" for="age">年齢</label><input id="age" data-step="2b" type="text" inputmode="numeric" value="40"></div>
     </div>
 
     <label class="field-label" for="koyo">雇用保険 業種</label>
-    <select id="koyo"><option value="ippan" selected>一般の事業</option><option value="nourin">農林水産・清酒製造の事業</option><option value="kensetsu">建設の事業</option></select>
+    <select id="koyo" data-step="3"><option value="ippan" selected>一般の事業</option><option value="nourin">農林水産・清酒製造の事業</option><option value="kensetsu">建設の事業</option></select>
 
     <div class="bonus-row">
       <label class="field-label" for="bonus" style="margin-top:0;">賞与（任意・支給月のみ）</label>
-      <input id="bonus" type="text" inputmode="numeric" placeholder="今回の支給額">
+      <input id="bonus" data-step="4" data-step-end type="text" inputmode="numeric" placeholder="今回の支給額">
       <div class="hint">入れた月だけ賞与分も計算します（賞与は支給月のみ控除。月額の合計には混ぜません）。</div>
     </div>
 
@@ -143,6 +143,7 @@
   </div>
 
 <script>window.__PREF__={"slug":"aomori","name":"青森県","rate":0.0985};</script>
+<script src="../js/core/shared/ui-input.js"></script>
 <script src="../js/core/shaho.js"></script>
 <script>(function clientMain() {
   'use strict';
@@ -151,31 +152,9 @@
   var elErr = document.getElementById('err');
   function yen(n){ return Math.round(n).toLocaleString('ja-JP') + ' 円'; }
   function fail(m){ elErr.textContent = m; elErr.style.display = 'block'; }
-  function toHalfWidth(str){
-    return String(str)
-      .replace(/[０-９]/g, function(s){ return String.fromCharCode(s.charCodeAt(0) - 0xFEE0); })
-      .replace(/[，、,]/g, "");
-  }
   function num(id){ var el = document.getElementById(id); if(!el) return 0; var v = toHalfWidth(el.value||'').replace(/[^0-9]/g,''); return v ? parseInt(v,10) : 0; }
-  // 数字入力: 全角→半角ライブ変換・カンマは欄を出た時のみ(金額欄のみ) — civic-site-common-rules/ui-rules 準拠(2026-08-02)
-  function setupNumericInput(id, options){
-    var el = document.getElementById(id); if(!el) return;
-    var withCommas = !!(options && options.withCommas);
-    var isComposing = false;
-    function clean(){ if(isComposing) return; el.value = toHalfWidth(el.value).replace(/[^0-9]/g, ""); }
-    function commit(){
-      var raw = toHalfWidth(el.value).replace(/[^0-9]/g, "");
-      if(!raw){ el.value = ""; return; }
-      el.value = withCommas ? Number(raw).toLocaleString("ja-JP") : raw;
-    }
-    el.addEventListener('compositionstart', function(){ isComposing = true; });
-    el.addEventListener('compositionend', function(){ isComposing = false; setTimeout(commit, 0); });
-    el.addEventListener('input', clean);
-    el.addEventListener('blur', commit);
-    el.addEventListener('keydown', function(e){
-      if(e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E'){ e.preventDefault(); }
-    });
-  }
+  // 数値入力欄と Enter 移動は共通 ../js/core/shared/ui-input.js（kokuho-core の原本の無改変複製。先に読み込む）
+  //   全角→半角のライブ変換・カンマは欄を出た時のみ（金額欄）・先頭ゼロ除去・data-step の順に Enter で次の欄へ
   setupNumericInput('salary', {withCommas:true});
   setupNumericInput('bonus', {withCommas:true});
   setupNumericInput('age');

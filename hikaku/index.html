@@ -52,12 +52,12 @@
     <div class="hint">全国1,700超の市区町村に対応。国保はお住まいの自治体の計算ページに引き継ぎます。</div>
 
     <label class="field-label">退職時の標準報酬月額</label>
-    <select id="std"></select>
+    <select id="std" data-step="1"></select>
     <div class="hint">給与の標準報酬月額（等級）。任意継続は上限（令和8年度＝320,000円）でクランプされます。</div>
 
     <div class="row">
-      <div><label class="field-label">対象月</label><select id="month"></select></div>
-      <div><label class="field-label">年齢</label><input id="age" type="number" min="0" max="120" value="45"></div>
+      <div><label class="field-label">対象月</label><select id="month" data-step="2a"></select></div>
+      <div><label class="field-label">年齢</label><input id="age" data-step="2b" data-step-end type="text" inputmode="numeric" value="45"></div>
     </div>
     <div class="hint">40〜64歳は介護保険（第2号）が加算されます。</div>
 
@@ -90,6 +90,7 @@
     <div class="src" style="border-top:1px solid #dbe6fb;margin-top:14px;padding-top:12px;">関連サイト：<a href="https://seido-keisan.jp/">制度計算（税金・保険料まるごと）↗</a> ／ <a href="https://kokuho-keisan.jp/">国民健康保険の計算 ↗</a> ／ <a href="/">社会保険トップ</a></div>
   </div>
 
+<script src="../js/core/shared/ui-input.js"></script>
 <script src="../js/core/shaho.js"></script>
 <script>
 (function(){
@@ -98,6 +99,7 @@
   var fmt=function(n){return Math.round(n).toLocaleString()+' 円';};
 
   function fail(msg){ elErr.textContent=msg; elErr.style.display='block'; }
+  setupNumericInput('age'); // 共通 ../js/core/shared/ui-input.js（全角→半角・先頭ゼロ除去。Enter 移動は data-step）
 
   // データ読込（fetch）。file:// では失敗し得るので明示メッセージ。
   Promise.all([
@@ -159,7 +161,7 @@
     var city=resolveCityInput();
     if(!city){ fail('市区町村が見つかりません。一覧から選択してください。'); return; }
     var std=parseInt(document.getElementById('std').value,10);
-    var age=parseInt(document.getElementById('age').value,10);
+    var age=parseInt(toHalfWidth(document.getElementById('age').value).replace(/[^0-9]/g,''),10);
     var month=document.getElementById('month').value;
 
     // 片方向：1件レジストリを組み立てて engine の buildHikaku に委譲（URL/県解決はエンジン側）
