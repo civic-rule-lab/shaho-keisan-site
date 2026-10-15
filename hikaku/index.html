@@ -20,6 +20,7 @@
   .hint{text-align:left;font-size:11px;color:#8595ad;margin-top:4px;line-height:1.5;}
   .btn{width:100%;margin-top:18px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:#1d4ed8;border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(29,78,216,.28);}
   .cols{display:flex;gap:12px;margin-top:18px;}
+  @media (max-width:520px){ .cols{flex-direction:column;} }   /* 携帯幅はカードを縦に積む（国保の内訳が増えたため） */
   .card{flex:1;padding:16px;border-radius:14px;text-align:left;}
   .card.nini{background:#fff;border:1px solid #bfdbfe;}
   .card.kokuho{background:#fff;border:1px dashed #cbd5e1;}
@@ -34,6 +35,10 @@
   .klink.disabled{background:#cbd5e1;pointer-events:none;}
   .note{font-size:11px;color:#94a3b8;margin-top:12px;line-height:1.6;text-align:left;}
   .flag{font-size:11px;color:#b45309;background:#fef3c7;border-radius:8px;padding:6px 10px;margin-top:8px;line-height:1.5;}
+  .kcity{font-size:12px;font-weight:600;color:#64748b;margin-left:4px;}
+  .verdict{margin-top:12px;padding:12px 14px;border-radius:12px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:14px;font-weight:700;line-height:1.6;text-align:left;}
+  .verdict.nini{background:#eff6ff;border-color:#bfdbfe;color:#1e3a8a;}
+  .verdict small{display:block;font-weight:400;font-size:11px;color:#475569;margin-top:4px;}
   .err{color:#b91c1c;font-size:13px;font-weight:700;margin-top:12px;text-align:center;display:none;}
   .src{font-size:10px;color:#a3adba;margin-top:14px;text-align:left;line-height:1.5;}
   .src a{color:#8595ad;}
@@ -57,9 +62,15 @@
 
     <div class="row">
       <div><label class="field-label">対象月</label><select id="month" data-step="2a"></select></div>
-      <div><label class="field-label">年齢</label><input id="age" data-step="2b" data-step-end type="text" inputmode="numeric" value="45"></div>
+      <div><label class="field-label">年齢</label><input id="age" data-step="2b" type="text" inputmode="numeric" value="45"></div>
     </div>
     <div class="hint">40〜64歳は介護保険（第2号）が加算されます。</div>
+
+    <div class="row">
+      <div><label class="field-label">前年の年収（給与）</label><input id="salary" data-step="3a" type="text" inputmode="numeric" placeholder="例：4,000,000"></div>
+      <div><label class="field-label">国保に入る人数</label><input id="family" data-step="3b" data-step-end type="text" inputmode="numeric" value="1"></div>
+    </div>
+    <div class="hint">国保の保険料は前年の所得で決まります。年収を入れると、お住まいの自治体の国保も同じ画面で計算して並べます（世帯で国保に入る人数＝本人を含む）。空欄なら任意継続だけ計算します。</div>
 
     <button class="btn" id="calc">保険料を計算して比較する</button>
     <div class="err" id="err"></div>
@@ -77,12 +88,20 @@
         <div class="flag" id="nini-flag" style="display:none"></div>
       </div>
       <div class="card kokuho">
-        <h3>国民健康保険</h3>
-        <div class="amt muted" id="kokuho-city">–</div>
-        <div class="year">自治体ごとに算定方式が異なります。お住まいの計算ページで正確に算定してください。</div>
-        <a class="klink" id="kokuho-link" href="#" target="_blank" rel="noopener">国保を計算する →</a>
+        <h3>国民健康保険 <span class="kcity" id="kokuho-city"></span></h3>
+        <div class="amt" id="kokuho-total" style="display:none">–</div>
+        <div class="year" id="kokuho-year" style="display:none"></div>
+        <div id="kokuho-detail" style="margin-top:8px;display:none">
+          <div class="line"><span>医療分</span><b id="kokuho-medical">–</b></div>
+          <div class="line"><span>支援分</span><b id="kokuho-support">–</b></div>
+          <div class="line"><span>介護分</span><b id="kokuho-care">–</b></div>
+          <div class="line"><span>軽減判定</span><b id="kokuho-reduction">–</b></div>
+        </div>
+        <div class="year" id="kokuho-note">自治体ごとに算定方式が異なります。年収を入れると、お住まいの自治体の料率で国保も計算します。</div>
+        <a class="klink" id="kokuho-link" href="#" target="_blank" rel="noopener">国保を詳しく計算する →</a>
       </div>
     </div>
+    <div class="verdict" id="verdict" style="display:none"></div>
 
     <div class="note" id="disclaimer" style="display:none"></div>
 
@@ -92,6 +111,8 @@
 
 <script src="../js/core/shared/ui-input.js?v=753806f3"></script>
 <script src="../js/core/shaho.js"></script>
+<script src="../js/core/shared/income.js?v=e4bdd01b"></script>
+<script src="../js/core/kokuho.js?v=db948d15"></script>
 <script>
 (function(){
   var DATA=null, CITIES=null, byName={};
@@ -99,7 +120,7 @@
   var fmt=function(n){return Math.round(n).toLocaleString()+' 円';};
 
   function fail(msg){ elErr.textContent=msg; elErr.style.display='block'; }
-  setupNumericInput('age'); // 共通 ../js/core/shared/ui-input.js（全角→半角・先頭ゼロ除去。Enter 移動は data-step）
+  setupNumericInput('age'); setupNumericInput('salary',{withCommas:true}); setupNumericInput('family'); // 共通 ../js/core/shared/ui-input.js（全角→半角・先頭ゼロ除去。Enter 移動は data-step）
 
   // データ読込（fetch）。file:// では失敗し得るので明示メッセージ。
   Promise.all([
@@ -188,14 +209,61 @@
 
     document.getElementById('kokuho-city').textContent=city.n;
     var link=document.getElementById('kokuho-link');
-    if(out.kokuho.hasKokuho){ link.href=out.kokuho.url; link.classList.remove('disabled'); link.textContent='国保を計算する →'; }
+    if(out.kokuho.hasKokuho){ link.href=out.kokuho.url; link.classList.remove('disabled'); link.textContent='国保を詳しく計算する →'; }
     else { link.href='#'; link.classList.add('disabled'); link.textContent='この自治体は準備中'; }
+
+    // 国保を同じ画面で計算（年収が入っているとき）。データは kokuho-keisan.jp の自治体 JSON（公開・CORS 許可）を
+    // その場で取得し、同梱の国保エンジン（kokuho-core の js/core/kokuho.js の写し）で計算する。入力値・結果は送信も保存もしない。
+    renderKokuho(city, age, nk.annual);
 
     document.getElementById('result').style.display='flex';
     var dis=document.getElementById('disclaimer');
     dis.style.display='block';
     dis.textContent='※'+out.disclaimer+'（'+nk.annualNote+'）';
   });
+
+  // ── 国保の同画面計算 ──
+  var KOKUHO_ORIGIN='https://kokuho-keisan.jp';
+  var KOKUHO_YEAR=2026;            // 令和8年度。翌年度は shaho.js の料率更新と同時に見直す
+  var _kokuhoCache={};
+  function kokuhoData(slug){
+    if(_kokuhoCache[slug]) return _kokuhoCache[slug];
+    _kokuhoCache[slug]=fetch(KOKUHO_ORIGIN+'/data/municipalities/'+slug+'/kokuho-'+KOKUHO_YEAR+'.json',{cache:'no-store'})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .catch(function(e){ delete _kokuhoCache[slug]; throw e; });
+    return _kokuhoCache[slug];
+  }
+  function showEl(id,on){ var el=document.getElementById(id); if(el) el.style.display=on?'':'none'; }
+  function renderKokuho(city, age, niniAnnual){
+    var salary=parseInt(toHalfWidth(document.getElementById('salary').value||'').replace(/[^0-9]/g,''),10)||0;
+    var family=Math.max(1, parseInt(toHalfWidth(document.getElementById('family').value||'1').replace(/[^0-9]/g,''),10)||1);
+    var note=document.getElementById('kokuho-note'), verdict=document.getElementById('verdict');
+    showEl('kokuho-total',false); showEl('kokuho-year',false); showEl('kokuho-detail',false); verdict.style.display='none';
+    if(!city.k){ note.textContent='この自治体の国保データは準備中です。'; return; }
+    if(!salary){ note.textContent='退職前の年収を入れると、'+city.n+'の国保も同じ画面で計算して並べます。'; return; }
+    note.textContent='国保を計算中…';
+    kokuhoData(city.s).then(function(data){
+      var income=calcSalaryIncome(salary, KOKUHO_YEAR);                 // 給与収入 → 給与所得（前年所得として使う）
+      var care=(age>=40&&age<=64)?1:0;                                   // 40〜64歳は介護分
+      var r=calculateKokuho({income:income, family:family, preschool:0, under18:0, care:care, salaryPensionCount:1, fixedAssetTax:0}, data);
+      document.getElementById('kokuho-total').textContent=fmt(Math.round(r.total/12))+' /月';
+      document.getElementById('kokuho-year').textContent='年額 約 '+fmt(r.total)+'（概算・前年所得 '+fmt(income)+' として計算）';
+      document.getElementById('kokuho-medical').textContent=fmt(r.medicalTotal);
+      document.getElementById('kokuho-support').textContent=fmt(r.supportTotal);
+      document.getElementById('kokuho-care').textContent=care?fmt(r.careTotal):'対象外';
+      document.getElementById('kokuho-reduction').textContent=r.reductionLabel||'軽減なし';
+      showEl('kokuho-total',true); showEl('kokuho-year',true); showEl('kokuho-detail',true);
+      note.textContent='均等割・所得割は '+city.n+' の令和'+(KOKUHO_YEAR-2018)+'年度の料率。未就学児・固定資産税などの条件は「詳しく計算する」で。';
+      var diff=Math.round(niniAnnual-r.total);
+      verdict.className='verdict'+(diff>0?'':' nini');
+      if(Math.abs(diff)<1000){ verdict.textContent='任意継続と国保はほぼ同額です（年 '+fmt(Math.abs(diff))+' の差）。'; }
+      else if(diff>0){ verdict.innerHTML='国保の方が 年 '+fmt(diff)+' 安い見込み<small>任意継続 年 '+fmt(niniAnnual)+' ／ 国保 年 '+fmt(r.total)+'。任意継続は最長2年、国保は前年所得が下がれば翌年度に安くなります。</small>'; }
+      else { verdict.innerHTML='任意継続の方が 年 '+fmt(-diff)+' 安い見込み<small>任意継続 年 '+fmt(niniAnnual)+' ／ 国保 年 '+fmt(r.total)+'。退職翌年は国保の所得割が前年所得で高くなりやすい点に注意。</small>'; }
+      verdict.style.display='block';
+    }).catch(function(e){
+      note.textContent='国保の計算データを取得できませんでした（'+e.message+'）。「詳しく計算する」からお住まいの計算ページをご利用ください。';
+    });
+  }
 })();
 </script>
 </body>
