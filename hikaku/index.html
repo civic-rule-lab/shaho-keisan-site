@@ -8,37 +8,43 @@
 <link rel="canonical" href="https://shaho-keisan.jp/hikaku/">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"任意継続 vs 国保 どっちが得か比較｜退職後の健康保険 計算サイト","url":"https://shaho-keisan.jp/hikaku/","inLanguage":"ja","publisher":{"@id":"https://seido-keisan.jp/about/#organization"}},{"@type":"Organization","@id":"https://seido-keisan.jp/about/#organization","name":"Civic Rule Lab","alternateName":"Civic Systems","url":"https://seido-keisan.jp/about/"}]}</script>
 <style>
+  :root{ /* 制度色トークン（社会保険=オレンジ・2026-10-22 決定）。kokuho-core の common.css と同じ名前 */
+    --acc:#c2410c; --acc-strong:#9a3412; --acc-soft:#ea580c;
+    --acc-ring:rgba(234,88,12,.15); --acc-ring-soft:rgba(234,88,12,.08); --acc-shadow:rgba(194,65,12,.28);
+    --acc-bg:#fff7ed; --acc-bg-2:#ffedd5; --acc-line:#fed7aa; --acc-line-strong:#fdba74; --tint:#fff7ed;
+  }
+
   body{margin:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;color:#222;padding:24px 12px;}
-  .wrap{max-width:520px;margin:0 auto;background:#eef4ff;padding:28px 22px;border-radius:18px;border:1px solid #dbe6fb;box-shadow:0 10px 30px rgba(0,0,0,.05);box-sizing:border-box;}
+  .wrap{max-width:520px;margin:0 auto;background:var(--tint);padding:28px 22px;border-radius:18px;border:1px solid var(--acc-line);box-shadow:0 10px 30px rgba(0,0,0,.05);box-sizing:border-box;}
   .sitename{font-size:19px;font-weight:800;color:#111827;letter-spacing:.03em;text-align:center;margin-bottom:14px;}
   h1{font-size:28px;font-weight:800;color:#111827;margin:0;line-height:1.25;text-align:center;}
   .sub{font-size:13px;color:#64748b;margin-top:12px;text-align:center;line-height:1.6;}
-  .rate-badge{display:block;text-align:center;font-size:11px;color:#3182ad;font-weight:700;margin:12px 0 4px;}
+  .rate-badge{display:block;text-align:center;font-size:11px;color:var(--acc);font-weight:700;margin:12px 0 4px;}
   .field-label{display:block;text-align:left;font-size:14px;font-weight:700;margin:16px 0 6px;color:#111827;}
   input,select{width:100%;padding:12px;font-size:16px;font-weight:500;border:2px solid #cbd5e1;border-radius:12px;background:#fff;color:#0f172a;box-sizing:border-box;}
-  input:focus,select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+  input:focus,select:focus{outline:none;border-color:var(--acc-soft);box-shadow:0 0 0 3px var(--acc-ring);}
   .row{display:flex;gap:10px;}.row>div{flex:1;}
   .hint{text-align:left;font-size:11px;color:#8595ad;margin-top:4px;line-height:1.5;}
-  .btn{width:100%;margin-top:18px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:#1d4ed8;border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(29,78,216,.28);}
+  .btn{width:100%;margin-top:18px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:var(--acc);border:none;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px var(--acc-shadow);}
   .cols{display:flex;gap:12px;margin-top:18px;}
   @media (max-width:520px){ .cols{flex-direction:column;} }   /* 携帯幅はカードを縦に積む（国保の内訳が増えたため） */
   .card{flex:1;padding:16px;border-radius:14px;text-align:left;}
-  .card.nini{background:#fff;border:1px solid #bfdbfe;}
+  .card.nini{background:#fff;border:1px solid var(--acc-line);}
   .card.kokuho{background:#fff;border:1px dashed #cbd5e1;}
   .card h3{font-size:14px;font-weight:800;margin:0 0 8px;}
-  .card.nini h3{color:#1e3a8a;} .card.kokuho h3{color:#475569;}
+  .card.nini h3{color:var(--acc-strong);} .card.kokuho h3{color:#475569;}
   .line{display:flex;justify-content:space-between;font-size:13px;color:#475569;padding:4px 0;border-bottom:1px dashed #e2e8f0;}
   .line b{color:#0f172a;}
-  .amt{font-size:24px;font-weight:800;color:#1d4ed8;margin:6px 0 2px;}
+  .amt{font-size:24px;font-weight:800;color:var(--acc);margin:6px 0 2px;}
   .amt.muted{color:#94a3b8;font-size:16px;}
   .year{font-size:11px;color:#64748b;}
-  .klink{display:inline-block;margin-top:10px;padding:9px 14px;background:#1d4ed8;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;}
+  .klink{display:inline-block;margin-top:10px;padding:9px 14px;background:var(--acc);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;}
   .klink.disabled{background:#cbd5e1;pointer-events:none;}
   .note{font-size:11px;color:#94a3b8;margin-top:12px;line-height:1.6;text-align:left;}
   .flag{font-size:11px;color:#b45309;background:#fef3c7;border-radius:8px;padding:6px 10px;margin-top:8px;line-height:1.5;}
   .kcity{font-size:12px;font-weight:600;color:#64748b;margin-left:4px;}
   .verdict{margin-top:12px;padding:12px 14px;border-radius:12px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:14px;font-weight:700;line-height:1.6;text-align:left;}
-  .verdict.nini{background:#eff6ff;border-color:#bfdbfe;color:#1e3a8a;}
+  .verdict.nini{background:#eff6ff;border-color:var(--acc-line);color:var(--acc-strong);}
   .verdict small{display:block;font-weight:400;font-size:11px;color:#475569;margin-top:4px;}
   .err{color:#b91c1c;font-size:13px;font-weight:700;margin-top:12px;text-align:center;display:none;}
   .src{font-size:10px;color:#a3adba;margin-top:14px;text-align:left;line-height:1.5;}
@@ -107,7 +113,7 @@
     <div class="note" id="disclaimer" style="display:none"></div>
 
     <div class="src" id="src"></div>
-    <div class="src" style="border-top:1px solid #dbe6fb;margin-top:14px;padding-top:12px;">運営：Civic Rule Lab（Civic Systems）｜ <a href="https://seido-keisan.jp/about/">運営者情報・免責</a></div>
+    <div class="src" style="border-top:1px solid var(--acc-line);margin-top:14px;padding-top:12px;">運営：Civic Rule Lab（Civic Systems）｜ <a href="https://seido-keisan.jp/about/">運営者情報・免責</a></div>
     <div class="src" style="margin-top:6px;">関連サイト：<a href="https://seido-keisan.jp/furusato/jieigyo/">退職後（国保）のふるさと納税 上限額 ↗</a> ／ <a href="https://kokuho-keisan.jp/">国保計算</a> ／ <a href="https://seido-keisan.jp/">制度計算</a> ／ <a href="https://shogakukin-keisan.jp/">奨学金かんたん計算</a> ／ <a href="/">社会保険トップ</a></div>
   </div>
 
