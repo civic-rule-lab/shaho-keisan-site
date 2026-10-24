@@ -1,5 +1,5 @@
 // 社会保険料計算エンジン（協会けんぽ健保・介護・子育て支援金・厚生年金・雇用保険）令和8年度(2026)
-// 制度計算ファミリー / shaho-keisan
+// 制度計算ファミリー / 社会保険料
 // 一次ソース: 協会けんぽR8料額表(kyoukaikenpo.or.jp) / 厚労省R8雇用保険料率(mhlw.go.jp) / 年金機構(nenkin.go.jp)。
 // 設計書 shaho-design.md §2 準拠。実行: node js/core/shaho.js → 自己テスト結果を表示
 //
