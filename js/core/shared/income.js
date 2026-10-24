@@ -158,6 +158,17 @@ function calcTaxableIncomeForJumin(params) {
   return Math.max(0, Math.floor(totalIncome - deductions));
 }
 
+// ─── 国保・後期高齢者医療の軽減判定：65歳以上の公的年金所得の特別控除（15万円） ─────
+// 軽減判定の所得は、65歳以上（前年12月31日時点）の公的年金等に係る所得から15万円を差し引いた額で判定する
+// （所得割の所得には差し引かない）。差し引く額はその人の年金所得が上限。
+//   国保: 国民健康保険法施行令 附則第5条（第29条の7第6項第1号の読替え）[確認済 2026-10-24 e-Gov 法令API・2026-08-01 施行時点]
+//   後期: kouki.js の reductionJudgmentIncome の注記・後期ページ（kouki-simple / kouki-income）と同じ扱い
+// age は calcPensionIncome と同じ年齢（公的年金等控除の65歳判定に使う年齢）を渡す。
+function calcKeigenPensionDeduction(pension, age) {
+  if (!(Number.isFinite(age) && age >= 65)) return 0;
+  return Math.min(150_000, calcPensionIncome(pension, age));
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { calcSalaryIncome, calcPensionIncome, calcTaxableIncomeForKokuho, calcTaxableIncomeForJumin };
+  module.exports = { calcSalaryIncome, calcPensionIncome, calcTaxableIncomeForKokuho, calcTaxableIncomeForJumin, calcKeigenPensionDeduction };
 }

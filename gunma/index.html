@@ -101,6 +101,7 @@
       <div class="line"><span>厚生年金</span><b id="r-nenkin">–</b></div>
       <div class="line"><span>雇用保険</span><b id="r-koyo">–</b></div>
       <div class="total"><span>月額 合計</span><span id="r-total">–</span></div>
+      <div class="note" id="r-age-note" style="display:none"></div>
       <div class="yearline" id="r-year"></div>
       <div class="split">労使折半（表示は本人負担分）。健康保険・厚生年金は会社も概ね同額を負担します。金額は概算です。</div>
     </div>
@@ -195,8 +196,18 @@
     var koyoR = r.koyo.applies ? Math.round(r.koyo.employee) : 0;
     var total = kenpoR + nenkinR + koyoR;
     document.getElementById('r-kenpo-label').textContent = r.care.applies ? '健康保険（介護・子育て支援金込）' : '健康保険（子育て支援金込）';
-    document.getElementById('r-kenpo').textContent = yen(kenpoR);
-    document.getElementById('r-nenkin').textContent = yen(nenkinR);
+    // 70歳以上は厚生年金の被保険者でない（厚生年金保険法 第9条）。75歳以上は後期高齢者医療＝健康保険の被保険者でない（健康保険法 第3条第1項第7号）
+    var noKenpo = r.health.applies === false, noNenkin = r.koseiNenkin.applies === false;
+    document.getElementById('r-kenpo').textContent = noKenpo ? '対象外' : yen(kenpoR);
+    document.getElementById('r-nenkin').textContent = noNenkin ? '対象外' : yen(nenkinR);
+    var ageNote = document.getElementById('r-age-note');
+    if(ageNote){
+      var msgs = [];
+      if(noNenkin) msgs.push('70歳以上は厚生年金の被保険者ではないため、厚生年金保険料はかかりません。');
+      if(noKenpo) msgs.push('75歳以上は後期高齢者医療の被保険者になるため、健康保険料（子育て支援金を含む）はかかりません。後期高齢者医療の保険料はお住まいの都道府県の計算で決まります。');
+      ageNote.textContent = msgs.join('');
+      ageNote.style.display = msgs.length ? 'block' : 'none';
+    }
     document.getElementById('r-koyo').textContent = r.koyo.applies ? yen(koyoR) : '未計算';
     document.getElementById('r-total').textContent = yen(total);
     document.getElementById('r-year').textContent = '年額換算 約 ' + yen(total * 12) + '（賞与を除く）';
@@ -208,8 +219,8 @@
       var bKenpo = Math.round(b.health.employee + b.care.employee + b.shienkin.employee);
       var bNenkin = Math.round(b.koseiNenkin.employee);
       var bKoyo = (b.koyo && b.koyo.applies) ? Math.round(b.koyo.employee) : 0;
-      document.getElementById('b-kenpo').textContent = yen(bKenpo);
-      document.getElementById('b-nenkin').textContent = yen(bNenkin);
+      document.getElementById('b-kenpo').textContent = noKenpo ? '対象外' : yen(bKenpo);
+      document.getElementById('b-nenkin').textContent = noNenkin ? '対象外' : yen(bNenkin);
       document.getElementById('b-koyo').textContent = (b.koyo && b.koyo.applies) ? yen(bKoyo) : '未計算';
       document.getElementById('b-total').textContent = yen(bKenpo + bNenkin + bKoyo);
       bbox.style.display = 'block';
