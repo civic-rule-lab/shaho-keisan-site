@@ -102,6 +102,7 @@
           <div class="line"><span>医療分</span><b id="kokuho-medical">–</b></div>
           <div class="line"><span>支援分</span><b id="kokuho-support">–</b></div>
           <div class="line"><span>介護分</span><b id="kokuho-care">–</b></div>
+          <div class="line"><span>子ども・子育て支援金分</span><b id="kokuho-childcare">–</b></div>
           <div class="line"><span>軽減判定</span><b id="kokuho-reduction">–</b></div>
         </div>
         <div class="year" id="kokuho-note">自治体ごとに算定方式が異なります。年収を入れると、お住まいの自治体の料率で国保も計算します。</div>
@@ -119,8 +120,8 @@
 
 <script src="../js/core/shared/ui-input.js?v=753806f3"></script>
 <script src="../js/core/shaho.js"></script>
-<script src="../js/core/shared/income.js?v=e4bdd01b-2"></script>
-<script src="../js/core/kokuho.js?v=db948d15-2"></script>
+<script src="../js/core/shared/income.js?v=87dc0a2d"></script>
+<script src="../js/core/kokuho.js?v=22a119c1"></script>
 <script>
 (function(){
   var DATA=null, CITIES=null, byName={};
@@ -192,6 +193,12 @@
     var std=parseInt(document.getElementById('std').value,10);
     var age=parseInt(toHalfWidth(document.getElementById('age').value).replace(/[^0-9]/g,''),10);
     var month=document.getElementById('month').value;
+    // 75歳以上は後期高齢者医療の被保険者（高齢者の医療の確保に関する法律 第50条）＝任意継続も国保も使えない
+    if(age>=75){
+      document.getElementById('result').style.display='none';
+      fail('75歳以上の方は後期高齢者医療の被保険者になるため、任意継続・国民健康保険のどちらにも加入しません。保険料はお住まいの都道府県の後期高齢者医療で決まります。');
+      return;
+    }
 
     // 片方向：1件レジストリを組み立てて engine の buildHikaku に委譲（URL/県解決はエンジン側）
     var registry={municipalities:[{
@@ -259,6 +266,7 @@
       document.getElementById('kokuho-medical').textContent=fmt(r.medicalTotal);
       document.getElementById('kokuho-support').textContent=fmt(r.supportTotal);
       document.getElementById('kokuho-care').textContent=care?fmt(r.careTotal):'対象外';
+      document.getElementById('kokuho-childcare').textContent=fmt(r.childcareTotal||0);   // 子ども・子育て支援金分（令和8年度〜）。4行の和＝年額
       document.getElementById('kokuho-reduction').textContent=r.reductionLabel||'軽減なし';
       showEl('kokuho-total',true); showEl('kokuho-year',true); showEl('kokuho-detail',true);
       note.textContent='均等割・所得割は '+city.n+' の令和'+(KOKUHO_YEAR-2018)+'年度の料率。未就学児・固定資産税などの条件は「詳しく計算する」で。';

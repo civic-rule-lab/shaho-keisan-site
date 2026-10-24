@@ -22,7 +22,15 @@ const path = _isNode ? require('path') : null;
 
 // ---- 定数 ---------------------------------------------------------------
 const KOSEI_FLOOR = 88000;   // 厚年 標準報酬月額の下限（=健保4等級/厚年1等級）
-const SEN_HALF = 0.5;        // 50銭（端数処理の境界）
+const SEN_HALF = 0.5;
+// 年齢による資格（2026-10-24。e-Gov の 2026-10-01 施行時点の本文で確認）
+//   厚生年金: 70歳未満が被保険者（厚生年金保険法 第9条）。70歳に達したとき資格を失う（第14条第5号）。
+//   健康保険（協会けんぽ・船員保険）: 後期高齢者医療の被保険者は健康保険の被保険者にならない（健康保険法 第3条第1項第7号）。
+//     後期高齢者医療は75歳以上（高齢者の医療の確保に関する法律 第50条第1号）。65〜74歳で障害の認定を受けて
+//     後期に入る場合（同条第2号）は年齢だけでは分からないので扱わない。年齢は整数で受け取る（誕生日の月の扱いは呼び出し側）。
+//   雇用保険は年齢の上限が無い（65歳以上は高年齢被保険者）ので変えない。
+const KOSEI_AGE_LIMIT = 70;
+const KOUKI_AGE = 75;        // 50銭（端数処理の境界）
 
 // ---- ユーティリティ ------------------------------------------------------
 
@@ -231,13 +239,24 @@ function calculateShaho(input, data) {
 
   // --- 健康保険（provider抽象・拡張シーム §7-6）。対象月で期間解決。prefSlug必須はprovider内 ---
   const healthResolved = resolveHealth(input, data);
-  const {
-    provider: healthProvider, splitModel,
+  const { provider: healthProvider, splitModel } = healthResolved;
+  let {
     healthRate, healthEmployeeRate,
     careApplies, careRate, careEmployeeRate, careReason,
     shienkinApplies, shienkinRate, shienkinEmployeeRate,
     employerOnly,
   } = healthResolved;
+
+  // 75歳以上は後期高齢者医療の被保険者＝健康保険（介護・子育て支援金を含む）の保険料はかからない
+  const ageKnown = typeof age === 'number';
+  const healthApplies = !(ageKnown && age >= KOUKI_AGE);
+  const healthReason = healthApplies ? null : 'over-74（75歳以上は後期高齢者医療の被保険者＝健康保険の被保険者でない）';
+  if (!healthApplies) {
+    healthRate = 0; healthEmployeeRate = 0;
+    careApplies = false; careRate = 0; careEmployeeRate = 0; careReason = healthReason;
+    shienkinApplies = false; shienkinRate = 0; shienkinEmployeeRate = 0;
+    employerOnly = [];
+  }
 
   // 介護・支援金の適用期間メタ（provider別ソース。kyoukai=kenpo / senpo=senpo）
   const careMeta = healthProvider === 'senpo' ? data.senpo.care : kenpo.careRate;
@@ -252,13 +271,16 @@ function calculateShaho(input, data) {
   if (!inPeriod(targetMonth, kosei.rate.validFrom, kosei.rate.validTo)) {
     throw new Error(`厚年料率が対象月 ${targetMonth} に未定義`);
   }
-  const koseiRate = kosei.rate.value;
+  // 70歳以上は厚生年金の被保険者でない＝厚生年金保険料はかからない
+  const koseiApplies = !(ageKnown && age >= KOSEI_AGE_LIMIT);
+  const koseiReason = koseiApplies ? null : 'over-69（70歳以上は厚生年金の被保険者でない）';
+  const koseiRate = koseiApplies ? kosei.rate.value : 0;
 
   // --- 各保険料（全額・折半額・本人負担）。折半額は丸めない＝公式表と一致 ---
   // .half = full/2（協会けんぽは本人負担と一致・公式「折半額」欄）／
   // .employee = 本人負担額（employeeRate ベース。船員は 折半≠本人負担 のため .half と乖離しうる）
   const half = (x) => x / 2;
-  const health = { rate: healthRate, full: kStd * healthRate };
+  const health = { applies: healthApplies, reason: healthReason, rate: healthRate, full: kStd * healthRate };
   health.half = half(health.full);
   health.employee = kStd * healthEmployeeRate;
   health.employer = health.full - health.employee;
@@ -278,7 +300,7 @@ function calculateShaho(input, data) {
   shienkin.employee = kStd * shienkinEmployeeRate;
   shienkin.employer = shienkin.full - shienkin.employee;
 
-  const koseiNenkin = { rate: koseiRate, standardMonthly: nStd, cap: nCap, full: nStd * koseiRate };
+  const koseiNenkin = { applies: koseiApplies, reason: koseiReason, rate: koseiRate, standardMonthly: nStd, cap: nCap, full: nStd * koseiRate };
   koseiNenkin.half = half(koseiNenkin.full);
   koseiNenkin.employee = koseiNenkin.half; // 厚年は折半（provider共通）
 
@@ -359,6 +381,7 @@ function calculateShaho(input, data) {
         validFrom: shienkinMeta.validFrom, validTo: shienkinMeta.validTo,
       },
       koseiNenkin: {
+        applies: koseiApplies, reason: koseiReason,
         rate: koseiRate, cap: nCap,
         validFrom: kosei.rate.validFrom, validTo: kosei.rate.validTo,
         source: (kosei.source && kosei.source.url) || null,
@@ -486,6 +509,10 @@ function calcNiniKeizoku(input, data) {
   assertGradeValue(formerStandardMonthly, data);
   const ageKnown = typeof age === 'number';
   const isCareAge = ageKnown && age >= 40 && age <= 64;
+  // 75歳以上は後期高齢者医療の被保険者＝任意継続（健康保険）の対象外（健康保険法 第3条第1項第7号）。金額を出さずに止める
+  if (ageKnown && age >= KOUKI_AGE) {
+    throw new Error('75歳以上は後期高齢者医療の被保険者のため、任意継続の対象外です');
+  }
 
   if (provider === 'kyoukai') {
     const { kenpo } = data;

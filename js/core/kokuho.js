@@ -20,6 +20,20 @@ function calculateKokuho(input, data) {
   // 均等割・平等割の人数（family / care / under18 / preschool）は members ではなく従来の入力を使う。
   const memberList = Array.isArray(members) && members.length > 0 ? members : null;
 
+  // 加入者（被保険者）が 0 人の世帯には国保料を課さない（2026-10-24）。
+  //   保険料は「被保険者の属する世帯の世帯主」から徴収する（国民健康保険法 第76条第1項。e-Gov 2026-10-01 施行時点で確認）。
+  //   被保険者がいなければ課す相手がない。
+  //   世帯全員が後期高齢者医療・社保に入っている場合などに household.js が family: 0 を渡す。旧実装は平等割と
+  //   子ども・子育て支援金の世帯割（と資産割）を課していた。family を省略したときの挙動は従来どおり（呼び出し元の互換のため）。
+  if (family === 0) {
+    return {
+      medicalTotal: 0, supportTotal: 0, careTotal: 0, childcareTotal: 0,
+      total: 0, monthly: 0,
+      preschoolReduction: 0, schoolReduction: 0, totalReduction: 0,
+      reductionLabel: '軽減なし', assetLevyTotal: 0,
+    };
+  }
+
   // ① income=undefined 対策：未指定時は 0 として扱う
   // members があるときは各人の所得の合計（軽減判定の既定値にも使う）。
   const incomeSafe      = memberList
