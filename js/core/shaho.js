@@ -101,11 +101,22 @@ function koseiStandard(kenpoStandardMonthly, targetMonth, kosei) {
 //     meta }
 // ⚠️ 船員は 疾病 本人 4.95%（総率÷2ではない）＋ 災害は本人負担なし ＝「÷2」ロジック不可。
 //    そのため provider ごとに employeeRate を明示し、メイン側は half でなく employeeRate で本人負担を出す。
+// 年齢（満年齢）を検査して返す（2026-11-01 全方向試算 C051・C197・C198・C199）。未指定（null・undefined）は null＝年齢不明。
+//   数でない（文字列 "45" など）・NaN・Infinity・負の数は例外。小数は満年齢として切り捨てる（64.5 → 64）。
+//   旧は typeof だけを見て、NaN を「年齢既知」、文字列を「年齢未指定」、64.5 を65歳以上として扱っていた
+function _normAge(v) {
+  if (v == null) return null;
+  if (typeof v !== 'number') throw new TypeError(`age は数で渡してください（${String(v)}）`);
+  if (!Number.isFinite(v) || v < 0) throw new RangeError(`age が範囲外です（${String(v)}）`);
+  return Math.floor(v);
+}
+
 function resolveHealth(input, data) {
   const provider = input.healthProvider || 'kyoukai';
-  const { targetMonth, prefSlug, age } = input;
+  const { targetMonth, prefSlug } = input;
+  const age = _normAge(input.age);
   const { kenpo, senpo } = data;
-  const ageKnown = typeof age === 'number';
+  const ageKnown = age !== null;
   const isCareAge = ageKnown && age >= 40 && age <= 64;
   // 介護が非適用のとき、その理由を明示（age未指定と40歳未満・65歳以上を区別＝Fable5軽微①）
   const careReasonFor = (applies, periodIn) => {
@@ -227,10 +238,12 @@ function resolveHealth(input, data) {
 function calculateShaho(input, data) {
   if (!input) throw new Error('calculateShaho: input がありません');
   if (!data) throw new Error('calculateShaho: data がありません');
-  const { monthlySalary, targetMonth, prefSlug, age } = input;
+  const { monthlySalary, targetMonth, prefSlug } = input;
+  const age = _normAge(input.age);
   const koyoCategory = input.koyoCategory || 'ippan';
 
-  if (typeof monthlySalary !== 'number' || monthlySalary < 0) {
+  // 有限の数でなければ例外（Infinity を受け付けて保険料が Infinity になっていた・C050）
+  if (typeof monthlySalary !== 'number' || !Number.isFinite(monthlySalary) || monthlySalary < 0) {
     throw new Error('monthlySalary（報酬月額）が不正');
   }
   if (!targetMonth) throw new Error('targetMonth（対象月）は必須（フォールバック禁止）');
@@ -248,7 +261,7 @@ function calculateShaho(input, data) {
   } = healthResolved;
 
   // 75歳以上は後期高齢者医療の被保険者＝健康保険（介護・子育て支援金を含む）の保険料はかからない
-  const ageKnown = typeof age === 'number';
+  const ageKnown = age !== null;
   const healthApplies = !(ageKnown && age >= KOUKI_AGE);
   const healthReason = healthApplies ? null : 'over-74（75歳以上は後期高齢者医療の被保険者＝健康保険の被保険者でない）';
   if (!healthApplies) {
@@ -404,6 +417,8 @@ function calculateShaho(input, data) {
   };
 
   // --- 賞与（任意） ---
+  // 数で渡されたのに有限でない（Infinity・NaN）ときは例外（標準賞与額が Infinity になっていた・C200）
+  if (typeof input.bonus === 'number' && !Number.isFinite(input.bonus)) throw new RangeError(`bonus が有限の数ではありません（${String(input.bonus)}）`);
   if (typeof input.bonus === 'number' && input.bonus > 0) {
     // 健保系 標準賞与額の年度上限（[確認済] 573万。provider別ソース：協会けんぽ=standard.kenpo.bonusCap／船員=senpo.bonusCap）
     const healthYearCapYen = healthProvider === 'senpo'
@@ -437,8 +452,11 @@ function calcBonus(bonus, rates, data) {
 
   // 健保系 年度累計上限（573万）。bonusYearToDate があれば残枠、無ければ年度唯一とみなす保守上限。
   const healthYearCapYen = (typeof data.healthYearCapYen === 'number') ? data.healthYearCapYen : 5730000;
+  // 累計は標準賞与額（1,000円未満切捨て）の合計なので1,000円未満を切り捨てる（健康保険法 第45条第1項。
+  //   切り捨てないと課税標準が1,000円の倍数にならなかった・2026-11-01 全方向試算 C203）
   const bonusYearToDate =
-    (typeof data.bonusYearToDate === 'number' && data.bonusYearToDate >= 0) ? data.bonusYearToDate : null;
+    (typeof data.bonusYearToDate === 'number' && Number.isFinite(data.bonusYearToDate) && data.bonusYearToDate >= 0)
+      ? Math.floor(data.bonusYearToDate / 1000) * 1000 : null;
   const remainingCap = bonusYearToDate === null
     ? healthYearCapYen                                   // 累計未提供＝この賞与が年度唯一とみなす
     : Math.max(0, healthYearCapYen - bonusYearToDate);   // 累計提供＝残枠
@@ -500,14 +518,15 @@ const ANNUAL_NOTE = '年額は月額×12の概算。料率は年度で改定さ�
 //   healthProvider="senpo":        船員 疾病任意継続（29等級・上限470,000・全国一律・一般10.33%）
 function calcNiniKeizoku(input, data) {
   if (!input) throw new Error('calcNiniKeizoku: input がありません');
-  const { prefSlug, formerStandardMonthly, age, targetMonth } = input;
+  const { prefSlug, formerStandardMonthly, targetMonth } = input;
+  const age = _normAge(input.age);
   const provider = input.healthProvider || 'kyoukai';
   if (!targetMonth) throw new Error('targetMonth（対象月）は必須（フォールバック禁止）');
   if (typeof formerStandardMonthly !== 'number' || formerStandardMonthly <= 0) {
     throw new Error('formerStandardMonthly（資格喪失時の標準報酬月額）が不正');
   }
   assertGradeValue(formerStandardMonthly, data);
-  const ageKnown = typeof age === 'number';
+  const ageKnown = age !== null;
   const isCareAge = ageKnown && age >= 40 && age <= 64;
   // 75歳以上は後期高齢者医療の被保険者＝任意継続（健康保険）の対象外（健康保険法 第3条第1項第7号）。金額を出さずに止める
   if (ageKnown && age >= KOUKI_AGE) {
@@ -670,7 +689,10 @@ function buildHikaku(input, data, registry, opts) {
 // ---- データ読込（node実行・生成スクリプト用。ブラウザではfetch結果を渡す） ---------
 function loadData(dir) {
   if (!fs || !path) throw new Error('loadData は Node 専用。ブラウザでは fetch した JSON を calculateShaho(input, data) に直接渡す');
-  const base = dir || path.resolve(__dirname, '../../');
+  // 既定の場所: 正本ではリポ直下、写し（他リポの js/core/shaho.js）では data/shaho。あるほうを使う
+  //   （2026-11-01 全方向試算 C206。旧は写しで存在しない場所を指して ENOENT）
+  const base = dir || [path.resolve(__dirname, '../../'), path.resolve(__dirname, '../../data/shaho')]
+    .find((b) => fs.existsSync(path.resolve(b, 'kenpo-2026.json'))) || path.resolve(__dirname, '../../');
   const read = (f) => JSON.parse(fs.readFileSync(path.resolve(base, f), 'utf8'));
   const readOpt = (f) => {
     // 任意ファイル（senpo/kumiai 等の provider 追加分）。ファイル不在(ENOENT)のみ null＝既定 kyoukai は無影響。

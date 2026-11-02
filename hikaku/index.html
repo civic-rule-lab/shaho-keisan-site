@@ -120,8 +120,8 @@
 
 <script src="../js/core/shared/ui-input.js?v=753806f3"></script>
 <script src="../js/core/shaho.js"></script>
-<script src="../js/core/shared/income.js?v=87dc0a2d"></script>
-<script src="../js/core/kokuho.js?v=22a119c1"></script>
+<script src="../js/core/shared/income.js?v=4599d3ed"></script>
+<script src="../js/core/kokuho.js?v=bc8a85f6"></script>
 <script>
 (function(){
   var DATA=null, CITIES=null, byName={};
@@ -192,6 +192,7 @@
     if(!city){ fail('市区町村が見つかりません。一覧から選択してください。'); return; }
     var std=parseInt(document.getElementById('std').value,10);
     var age=parseInt(toHalfWidth(document.getElementById('age').value).replace(/[^0-9]/g,''),10);
+    if(isNaN(age)) age=undefined;   // 空欄は年齢未指定として渡す（エンジンは NaN を受け付けない・2026-11-01 全方向試算 C051）
     var month=document.getElementById('month').value;
     // 75歳以上は後期高齢者医療の被保険者（高齢者の医療の確保に関する法律 第50条）＝任意継続も国保も使えない
     if(age>=75){
