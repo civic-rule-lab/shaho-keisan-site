@@ -68,16 +68,26 @@
     <div class="hint">給与の標準報酬月額（等級）。任意継続は上限（令和8年度＝320,000円）でクランプされます。</div>
 
     <div class="row">
-      <div><label class="field-label">対象月</label><select id="month" data-step="2a"></select></div>
+      <div><label class="field-label">何月分の保険料か</label><select id="month" data-step="2a"></select></div>
       <div><label class="field-label">年齢</label><input id="age" data-step="2b" type="text" inputmode="numeric" value="45"></div>
     </div>
+    <div class="hint" id="month-hint">料率は年度の途中で変わることがあるため、何月分の保険料かで計算します（健康保険は3月分から、子育て支援金は4月分から新しい率）。率が同じ期間は、どの月を選んでも同じ額です。</div>
     <div class="hint">40〜64歳は介護保険（第2号）が加算されます。</div>
 
     <div class="row">
       <div><label class="field-label">前年の年収（給与）</label><input id="salary" data-step="3a" type="text" inputmode="numeric" placeholder="例：4,000,000"></div>
-      <div><label class="field-label">国保に入る人数</label><input id="family" data-step="3b" data-step-end type="text" inputmode="numeric" value="1"></div>
+      <div><label class="field-label">国保に入る人数</label><input id="family" data-step="3b" type="text" inputmode="numeric" value="1"></div>
     </div>
     <div class="hint">国保の保険料は前年の所得で決まります。年収を入れると、お住まいの自治体の国保も同じ画面で計算して並べます（世帯で国保に入る人数＝本人を含む）。空欄なら任意継続だけ計算します。</div>
+
+    <div class="row">
+      <div><label class="field-label">そのうち 40〜64歳の人数</label><input id="care40" data-step="4a" type="text" inputmode="numeric" value="1"></div>
+      <div><label class="field-label">そのうち 18歳未満の人数</label><input id="under18" data-step="4b" type="text" inputmode="numeric" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label class="field-label">18歳未満のうち 小学校入学前の人数</label><input id="preschool" data-step="4c" data-step-end type="text" inputmode="numeric" value="0"></div>
+    </div>
+    <div class="hint">40〜64歳の人数（本人を含む）は介護分がかかる人数です。本人の年齢から入れておくので、家族の分を足してください。18歳未満は、18歳になって最初の3月31日までの人です（子ども・子育て支援金分の均等割がかからず、小学校入学前の子は均等割が5割軽減されます）。家族の所得は0円として軽減を判定します。</div>
 
     <button class="btn" id="calc">保険料を計算して比較する</button>
     <div class="err" id="err"></div>
@@ -88,9 +98,9 @@
         <div class="amt" id="nini-total">–</div>
         <div class="year" id="nini-year"></div>
         <div style="margin-top:8px">
-          <div class="line"><span>健康保険</span><b id="nini-health">–</b></div>
-          <div class="line"><span>介護保険</span><b id="nini-care">–</b></div>
-          <div class="line"><span>子育て支援金</span><b id="nini-shien">–</b></div>
+          <div class="line"><span>健康保険（月額）</span><b id="nini-health">–</b></div>
+          <div class="line"><span>介護保険（月額）</span><b id="nini-care">–</b></div>
+          <div class="line"><span>子育て支援金（月額）</span><b id="nini-shien">–</b></div>
         </div>
         <div class="flag" id="nini-flag" style="display:none"></div>
       </div>
@@ -99,10 +109,10 @@
         <div class="amt" id="kokuho-total" style="display:none">–</div>
         <div class="year" id="kokuho-year" style="display:none"></div>
         <div id="kokuho-detail" style="margin-top:8px;display:none">
-          <div class="line"><span>医療分</span><b id="kokuho-medical">–</b></div>
-          <div class="line"><span>支援分</span><b id="kokuho-support">–</b></div>
-          <div class="line"><span>介護分</span><b id="kokuho-care">–</b></div>
-          <div class="line"><span>子ども・子育て支援金分</span><b id="kokuho-childcare">–</b></div>
+          <div class="line"><span>医療分（年額）</span><b id="kokuho-medical">–</b></div>
+          <div class="line"><span>支援分（年額）</span><b id="kokuho-support">–</b></div>
+          <div class="line"><span>介護分（年額）</span><b id="kokuho-care">–</b></div>
+          <div class="line"><span>子ども・子育て支援金分（年額）</span><b id="kokuho-childcare">–</b></div>
           <div class="line"><span>軽減判定</span><b id="kokuho-reduction">–</b></div>
         </div>
         <div class="year" id="kokuho-note">自治体ごとに算定方式が異なります。年収を入れると、お住まいの自治体の料率で国保も計算します。</div>
@@ -110,6 +120,11 @@
       </div>
     </div>
     <div class="verdict" id="verdict" style="display:none"></div>
+    <ul class="note" id="kokuho-caveats" style="display:none;padding-left:18px">
+      <li>退職した年度の国保料（税）は、国保に入った月から3月までの月割りになります（各市区町村の条例で定められています）。上の国保の額は1年度分です。</li>
+      <li>国保料（税）は、年額を自治体ごとに決まった回数に分けて納めます。回数と1回あたりの額は、お住まいの自治体の納付書・案内で確かめてください。</li>
+      <li>65歳以上の世帯主で年金を受け取っている世帯は、国保料（税）が年金から差し引かれる（特別徴収）ことがあり、納め方と回数が変わります。</li>
+    </ul>
 
     <div class="note" id="disclaimer" style="display:none"></div>
 
@@ -130,6 +145,14 @@
 
   function fail(msg){ elErr.textContent=msg; elErr.style.display='block'; }
   setupNumericInput('age'); setupNumericInput('salary',{withCommas:true}); setupNumericInput('family'); // 共通 ../js/core/shared/ui-input.js（全角→半角・先頭ゼロ除去。Enter 移動は data-step）
+  setupNumericInput('care40'); setupNumericInput('under18'); setupNumericInput('preschool');
+  var intOf=function(id){ var v=toHalfWidth(document.getElementById(id).value||'').replace(/[^0-9]/g,''); return v===''?NaN:parseInt(v,10); };
+  // 40〜64歳の人数は本人の年齢から 1／0 を入れる。利用者が書き換えたら、年齢を変えても上書きしない（2026-11-02 全方向試算 C054）
+  var care40=document.getElementById('care40');
+  care40.addEventListener('input', function(){ care40.dataset.touched='1'; });
+  function syncCare40(){ if(care40.dataset.touched==='1') return; var a=intOf('age'); care40.value=(a>=40&&a<=64)?'1':'0'; }
+  document.getElementById('age').addEventListener('input', syncCare40);
+  document.getElementById('age').addEventListener('blur', syncCare40);
 
   // データ読込（fetch）。file:// では失敗し得るので明示メッセージ。
   Promise.all([
@@ -164,13 +187,21 @@
     });
     sel.value=300000;
   }
+  // 「何月分の保険料か」の選択肢＝今月分から、エンジンが計算できる月まで（2026-11-02 オーナー確定）。
+  // 計算できるかはエンジンに聞く（料率データが無い月はエンジンが throw する）。ページで料率の期間を読み直さない。
+  // 今月分が計算できない（翌年度の料率が未反映）ときは、計算できる最後の月だけを出して断る。
+  function ym(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); }
+  function okMonth(m){ try{ window.Shaho.calcNiniKeizoku({prefSlug:'tokyo', formerStandardMonthly:300000, age:45, targetMonth:m}, DATA); return true; }catch(e){ return false; } }
   function initMonths(){
-    var sel=document.getElementById('month');
-    // 任意継続は4月分〜適用。R8の対象月（2026-04〜2027-02）を並べる。
-    var ms=['2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12','2027-01','2027-02'];
+    var sel=document.getElementById('month'), hint=document.getElementById('month-hint');
+    var now=new Date(), cur=ym(now), ms=[], last=null;
+    for(var i=-24;i<=24;i++){ var m=ym(new Date(now.getFullYear(), now.getMonth()+i, 1)); if(okMonth(m)){ last=m; if(i>=0) ms.push(m); } }
+    var stale=!ms.length && last;
+    if(stale) ms=[last];
     ms.forEach(function(m){ var o=document.createElement('option'); o.value=m;
-      o.textContent=m.replace('-','年')+'月分'; sel.appendChild(o); });
-    sel.value='2026-07';
+      o.textContent=m.replace('-','年').replace(/年0?/,'年')+'月分'; sel.appendChild(o); });
+    if(ms.length) sel.value=ms[0];
+    if(stale) hint.textContent='翌年度の料率はまだ反映していないため、'+last.replace('-','年').replace(/年0?/,'年')+'月分の料率で計算します。';
   }
   function initSrc(kenpo){
     document.getElementById('src').innerHTML='出典：協会けんぽ 令和8年度 都道府県別保険料率／任意継続の標準報酬上限（'+
@@ -200,6 +231,9 @@
       fail('75歳以上の方は後期高齢者医療の被保険者になるため、任意継続・国民健康保険のどちらにも加入しません。保険料はお住まいの都道府県の後期高齢者医療で決まります。');
       return;
     }
+    // 国保に入る人の内訳を検査（2026-11-02 全方向試算 C054・C055）。数が合わないまま計算しない
+    var hh=householdCounts(age);
+    if(hh.error){ document.getElementById('result').style.display='none'; fail(hh.error); return; }
 
     // 片方向：1件レジストリを組み立てて engine の buildHikaku に委譲（URL/県解決はエンジン側）
     var registry={municipalities:[{
@@ -213,8 +247,9 @@
     if(!out.ok){ fail(out.reason||'比較できませんでした。'); return; }
 
     var nk=out.niniKeizoku;
-    document.getElementById('nini-total').textContent=fmt(nk.monthly.total)+' /月';
-    document.getElementById('nini-year').textContent='年額換算 約 '+fmt(nk.annual)+'（概算）';
+    // 比べる軸は年額（国保と同じ基準）。任意継続は毎月払うので月額×12を添える（2026-11-02 オーナー確定）
+    document.getElementById('nini-total').textContent='年 '+fmt(nk.annual);
+    document.getElementById('nini-year').textContent='毎月 '+fmt(nk.monthly.total)+' × 12か月（概算）';
     document.getElementById('nini-health').textContent=fmt(nk.monthly.health);
     document.getElementById('nini-care').textContent=nk.monthly.careApplies?fmt(nk.monthly.care):'対象外';
     document.getElementById('nini-shien').textContent=fmt(nk.monthly.shienkin);
@@ -230,7 +265,7 @@
 
     // 国保を同じ画面で計算（年収が入っているとき）。データは kokuho-keisan.jp の自治体 JSON（公開・CORS 許可）を
     // その場で取得し、同梱の国保エンジン（kokuho-core の js/core/kokuho.js の写し）で計算する。入力値・結果は送信も保存もしない。
-    renderKokuho(city, age, nk.annual);
+    renderKokuho(city, hh, nk.annual);
 
     document.getElementById('result').style.display='flex';
     var dis=document.getElementById('disclaimer');
@@ -250,27 +285,40 @@
     return _kokuhoCache[slug];
   }
   function showEl(id,on){ var el=document.getElementById(id); if(el) el.style.display=on?'':'none'; }
-  function renderKokuho(city, age, niniAnnual){
+  // 国保に入る人数と内訳。空欄は 0（人数は 1）。本人は年齢から 40〜64歳か・それ以外の大人かに数える
+  function householdCounts(age){
+    var family=Math.max(1, intOf('family')||1);
+    var c=intOf('care40'), u=intOf('under18'), p=intOf('preschool');
+    c=isNaN(c)?0:c; u=isNaN(u)?0:u; p=isNaN(p)?0:p;
+    var selfCare=(age>=40&&age<=64), selfOther=(age!==undefined&&age>=18&&!selfCare)?1:0;
+    if(selfCare&&c<1) return {error:'本人が40〜64歳のため、「40〜64歳の人数」は1以上にしてください（本人を含む人数です）。'};
+    if(p>u) return {error:'「小学校入学前の人数」が「18歳未満の人数」を超えています。小学校入学前の子は18歳未満の人数にも含めてください。'};
+    if(c+u+selfOther>family) return {error:'40〜64歳・18歳未満の人数（本人を含む）が、国保に入る人数（'+family+'人）を超えています。'};
+    return {family:family, care:c, under18:u, preschool:p};
+  }
+  function renderKokuho(city, hh, niniAnnual){
     var salary=parseInt(toHalfWidth(document.getElementById('salary').value||'').replace(/[^0-9]/g,''),10)||0;
-    var family=Math.max(1, parseInt(toHalfWidth(document.getElementById('family').value||'1').replace(/[^0-9]/g,''),10)||1);
+    var family=hh.family;
     var note=document.getElementById('kokuho-note'), verdict=document.getElementById('verdict');
-    showEl('kokuho-total',false); showEl('kokuho-year',false); showEl('kokuho-detail',false); verdict.style.display='none';
+    showEl('kokuho-total',false); showEl('kokuho-year',false); showEl('kokuho-detail',false); showEl('kokuho-caveats',false); verdict.style.display='none';
     if(!city.k){ note.textContent='この自治体の国保データは準備中です。'; return; }
     if(!salary){ note.textContent='退職前の年収を入れると、'+city.n+'の国保も同じ画面で計算して並べます。'; return; }
     note.textContent='国保を計算中…';
     kokuhoData(city.s).then(function(data){
       var income=calcSalaryIncome(salary, KOKUHO_YEAR);                 // 給与収入 → 給与所得（前年所得として使う）
-      var care=(age>=40&&age<=64)?1:0;                                   // 40〜64歳は介護分
-      var r=calculateKokuho({income:income, family:family, preschool:0, under18:0, care:care, salaryPensionCount:1, fixedAssetTax:0}, data);
-      document.getElementById('kokuho-total').textContent=fmt(Math.round(r.total/12))+' /月';
-      document.getElementById('kokuho-year').textContent='年額 約 '+fmt(r.total)+'（概算・前年所得 '+fmt(income)+' として計算）';
+      // 介護分＝40〜64歳の人数、子の軽減・支援金均等割の除外＝18歳未満・未就学児の人数（2026-11-02 全方向試算 C054・C055。旧は本人の年齢だけ・子は0人固定）
+      var care=hh.care;
+      var r=calculateKokuho({income:income, family:family, preschool:hh.preschool, under18:hh.under18, care:care, salaryPensionCount:1, fixedAssetTax:0}, data);
+      // 大きく出すのは年額。年額÷12 は「ならした額」として添える（実際の納付は自治体ごとの回数＝注意書き。2026-11-02 オーナー確定）
+      document.getElementById('kokuho-total').textContent='年 '+fmt(r.total);
+      document.getElementById('kokuho-year').textContent='1か月あたりにならした額 約 '+fmt(Math.round(r.total/12))+'（年額 ÷ 12・納付額ではありません）。概算・前年所得 '+fmt(income)+' として計算';
       document.getElementById('kokuho-medical').textContent=fmt(r.medicalTotal);
       document.getElementById('kokuho-support').textContent=fmt(r.supportTotal);
       document.getElementById('kokuho-care').textContent=care?fmt(r.careTotal):'対象外';
       document.getElementById('kokuho-childcare').textContent=fmt(r.childcareTotal||0);   // 子ども・子育て支援金分（令和8年度〜）。4行の和＝年額
       document.getElementById('kokuho-reduction').textContent=r.reductionLabel||'軽減なし';
-      showEl('kokuho-total',true); showEl('kokuho-year',true); showEl('kokuho-detail',true);
-      note.textContent='均等割・所得割は '+city.n+' の令和'+(KOKUHO_YEAR-2018)+'年度の料率。未就学児・固定資産税などの条件は「詳しく計算する」で。';
+      showEl('kokuho-total',true); showEl('kokuho-year',true); showEl('kokuho-detail',true); showEl('kokuho-caveats',true);
+      note.textContent='均等割・所得割は '+city.n+' の令和'+(KOKUHO_YEAR-2018)+'年度の料率。家族の所得・固定資産税などの条件は「詳しく計算する」で。';
       var diff=Math.round(niniAnnual-r.total);
       verdict.className='verdict'+(diff>0?'':' nini');
       if(Math.abs(diff)<1000){ verdict.textContent='任意継続と国保はほぼ同額です（年 '+fmt(Math.abs(diff))+' の差）。'; }

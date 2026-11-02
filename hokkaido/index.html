@@ -79,9 +79,10 @@
     <input id="salary" data-step="1" type="text" inputmode="numeric" value="300,000">
 
     <div class="row">
-      <div><label class="field-label" for="month">対象月</label><select id="month" data-step="2a"><option value="2026-04">2026年4月分</option><option value="2026-05">2026年5月分</option><option value="2026-06">2026年6月分</option><option value="2026-07" selected>2026年7月分</option><option value="2026-08">2026年8月分</option><option value="2026-09">2026年9月分</option><option value="2026-10">2026年10月分</option><option value="2026-11">2026年11月分</option><option value="2026-12">2026年12月分</option><option value="2027-01">2027年1月分</option><option value="2027-02">2027年2月分</option></select></div>
+      <div><label class="field-label" for="month">何月分の保険料か</label><select id="month" data-step="2a"></select></div>
       <div><label class="field-label" for="age">年齢</label><input id="age" data-step="2b" type="text" inputmode="numeric" value="40"></div>
     </div>
+    <div class="hint" id="month-hint">料率は年度の途中で変わることがあるため、何月分の保険料かで計算します（健康保険は3月分から、子育て支援金・雇用保険は4月分から新しい率）。率が同じ期間は、どの月を選んでも同じ額です。</div>
 
     <label class="field-label" for="koyo">雇用保険 業種</label>
     <select id="koyo" data-step="3"><option value="ippan" selected>一般の事業</option><option value="nourin">農林水産・清酒製造の事業</option><option value="kensetsu">建設の事業</option></select>
@@ -142,7 +143,7 @@
 
     <div class="src">
       出典：全国健康保険協会 令和8年度 都道府県別保険料率（2026-07-03確認）／厚生労働省 雇用保険料率／日本年金機構 厚生年金保険料率。
-      料率は対象月（○月分）で解決しています。組合健保の方は各組合の通知をご確認ください。実際の控除額は勤務先・通知でご確認ください。
+      料率は何月分の保険料か（○月分）で決めています。組合健保の方は各組合の通知をご確認ください。実際の控除額は勤務先・通知でご確認ください。
     </div>
     <div class="src" style="border-top:1px solid var(--acc-line);margin-top:14px;padding-top:12px;">
       運営：Civic Rule Lab（Civic Systems）｜ <a href="https://seido-keisan.jp/about/">運営者情報・免責</a>
@@ -168,12 +169,26 @@
   setupNumericInput('salary', {withCommas:true});
   setupNumericInput('bonus', {withCommas:true});
   setupNumericInput('age');
+  // 「何月分の保険料か」の選択肢＝今月分から、エンジンが計算できる月まで（2026-11-02）。計算できるかはエンジンに聞く
+  // （料率データが無い月は calculateShaho が throw する）。今月分が計算できないときは、計算できる最後の月だけを出して断る。
+  function ym(d){ return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
+  function label(m){ var p = m.split('-'); return p[0] + '年' + Number(p[1]) + '月分'; }
+  function okMonth(m){ try { window.Shaho.calculateShaho({ monthlySalary: 300000, targetMonth: m, prefSlug: PREF.slug, age: 45, koyoCategory: 'ippan' }, DATA); return true; } catch(e){ return false; } }
+  function initMonths(){
+    var sel = document.getElementById('month'), now = new Date(), ms = [], last = null;
+    for (var i = -24; i <= 24; i++) { var m = ym(new Date(now.getFullYear(), now.getMonth() + i, 1)); if (okMonth(m)) { last = m; if (i >= 0) ms.push(m); } }
+    var stale = !ms.length && last;
+    if (stale) ms = [last];
+    ms.forEach(function(m){ var o = document.createElement('option'); o.value = m; o.textContent = label(m); sel.appendChild(o); });
+    if (ms.length) sel.value = ms[0];
+    if (stale) document.getElementById('month-hint').textContent = '翌年度の料率はまだ反映していないため、' + label(last) + 'の料率で計算します。';
+  }
   Promise.all([
     fetch('../kenpo-2026.json').then(function(r){ return r.json(); }),
     fetch('../kosei-nenkin.json').then(function(r){ return r.json(); }),
     fetch('../koyo-2026.json').then(function(r){ return r.json(); }),
     fetch('../standard-monthly.json').then(function(r){ return r.json(); })
-  ]).then(function(a){ DATA = { kenpo:a[0], kosei:a[1], koyo:a[2], standard:a[3] }; })
+  ]).then(function(a){ DATA = { kenpo:a[0], kosei:a[1], koyo:a[2], standard:a[3] }; initMonths(); })
     .catch(function(){ fail('データの読み込みに失敗しました。http(s) 配信でご利用ください（ローカルの file:// では動きません）。'); });
 
   document.getElementById('calc').addEventListener('click', function(){
