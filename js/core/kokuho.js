@@ -9,8 +9,8 @@
 const CHILDCARE_CAP_NATIONAL = 30000;
 
 function calculateKokuho(input, data) {
-  const { income, family, preschool, under18, care, salaryPensionCount, fixedAssetTax,
-          reductionJudgmentIncome, members } = input;
+  const { income, family: familyIn, preschool, under18, care, salaryPensionCount, fixedAssetTax,
+          reductionJudgmentIncome, members, tokuteiDouitsuCount, giseiSetainushi, tokuteiSetaiKubun } = input;
 
   // 加入者ごとの所得（任意・2026-10-04 追加・TASKS X170-12）。
   //   members: [{ income: 前年の総所得金額等（基礎控除前）, careTarget: 40〜64歳なら true }, ...]
@@ -24,7 +24,12 @@ function calculateKokuho(input, data) {
   //   保険料は「被保険者の属する世帯の世帯主」から徴収する（国民健康保険法 第76条第1項。e-Gov 2026-10-01 施行時点で確認）。
   //   被保険者がいなければ課す相手がない。
   //   世帯全員が後期高齢者医療・社保に入っている場合などに household.js が family: 0 を渡す。旧実装は平等割と
-  //   子ども・子育て支援金の世帯割（と資産割）を課していた。family を省略したときの挙動は従来どおり（呼び出し元の互換のため）。
+  //   子ども・子育て支援金の世帯割（と資産割）を課していた。family を省略したときは 0 ではなく、下のとおり 1 人（または members の人数）とみなす。
+  // 世帯人数（加入者数）を省略した・数でないときは、members があればその人数、無ければ 1 人とみなす。
+  //   旧実装は省略すると均等割が 0 人分・軽減の基準額が NaN になり、黙って「軽減なし」で計算していた（2026-10-25・全方向試算 B-8）。
+  const family = (familyIn === undefined || familyIn === null || !Number.isFinite(Number(familyIn)))
+    ? (Array.isArray(members) && members.length > 0 ? members.length : 1)
+    : Number(familyIn);
   if (family === 0) {
     return {
       medicalTotal: 0, supportTotal: 0, careTotal: 0, childcareTotal: 0,
@@ -49,12 +54,15 @@ function calculateKokuho(input, data) {
   const reductionBase = reductionJudgmentIncome ?? incomeSafe;
 
   // 資産割
-  const assetLevyMedical = data.assetLevy ? Math.round(fixedAssetTax * (data.assetLevy.medical || 0)) : 0;
-  const assetLevySupport = data.assetLevy ? Math.round(fixedAssetTax * (data.assetLevy.support || 0)) : 0;
+  // 固定資産税額を省略した・数でない・負の値のときは 0 として扱う。旧実装は省略すると資産割のある自治体（R8 で 113 件）で
+  // 合計が NaN になっていた（公開ページは 0 を渡すので表示には出ない。API・テストの呼び出しで起きる。2026-10-25・全方向試算 B-7）。
+  const fixedAssetTaxSafe = Number.isFinite(Number(fixedAssetTax)) ? Math.max(Number(fixedAssetTax), 0) : 0;
+  const assetLevyMedical = data.assetLevy ? Math.round(fixedAssetTaxSafe * (data.assetLevy.medical || 0)) : 0;
+  const assetLevySupport = data.assetLevy ? Math.round(fixedAssetTaxSafe * (data.assetLevy.support || 0)) : 0;
   // 介護分は介護納付金課税被保険者（40〜64歳）がいる世帯だけに課す（所得割・均等割・平等割と同じ条件）。
   // 旧実装は care=0 の世帯にも介護分資産割を課していた（2026-10-01 修正）。
-  const assetLevyCare    = data.assetLevy && careSafe > 0 ? Math.round(fixedAssetTax * (data.assetLevy.care    || 0)) : 0;
-  const assetLevyChildcare = data.assetLevy ? Math.round(fixedAssetTax * (data.assetLevy.childcare || 0)) : 0;
+  const assetLevyCare    = data.assetLevy && careSafe > 0 ? Math.round(fixedAssetTaxSafe * (data.assetLevy.care    || 0)) : 0;
+  const assetLevyChildcare = data.assetLevy ? Math.round(fixedAssetTaxSafe * (data.assetLevy.childcare || 0)) : 0;
 
   const memberBase = (m) => Math.max(Math.max(m?.income || 0, 0) - data.basicDeduction, 0);
   const baseIncome = memberList
@@ -76,8 +84,16 @@ function calculateKokuho(input, data) {
   const carePerCapita    = careSafe   * data.perCapita.care;
 
   // 平等割
-  const medicalHousehold = data.household?.medical || 0;
-  const supportHousehold = data.household?.support || 0;
+  // 特定世帯（後期へ移った特定同一世帯所属者と同じ世帯で、国保の加入者が1人だけ・移ってから5年以内）は 1/2、
+  // 特定継続世帯（その後3年間）は 3/4（国民健康保険法施行令 第29条の7 第2項第8号ロ・ハ、第3項第7号、第5項第9号）
+  //   [確認済 2026-10-25 e-Gov 法令API・2026-08-01 施行時点]。医療分・後期支援金分・子ども子育て支援金分が対象で、介護分には無い。
+  //   1円未満は切り捨てる（10円未満を切り捨てる条例もあり、数円ずれることがある）。
+  const tokuteiRatio = familySafe === 1
+    ? (tokuteiSetaiKubun === 'tokutei' ? [1, 2] : tokuteiSetaiKubun === 'keizoku' ? [3, 4] : null)
+    : null;
+  const tokuteiAdj = (v) => tokuteiRatio ? Math.floor(v * tokuteiRatio[0] / tokuteiRatio[1]) : v;
+  const medicalHousehold = tokuteiAdj(data.household?.medical || 0);
+  const supportHousehold = tokuteiAdj(data.household?.support || 0);
   const careHousehold    = careSafe > 0 ? (data.household?.care || 0) : 0;
 
   // 未就学児軽減の計算は「軽減判定」で reductionRate が確定した後に行う。
@@ -93,24 +109,34 @@ function calculateKokuho(input, data) {
   // 実際の減額計算は「軽減判定」で reductionRate が確定した後に行う（未就学児軽減と同じ）。
 
   // 軽減判定
-  // ② salaryPensionCount > family 対策：family を上限として clamp
-  const B = Math.max(Math.min(salaryPensionCount || 0, familySafe || 1), 1);
+  // 特定同一世帯所属者（後期高齢者医療へ移って国保の資格を失い、そのまま同じ世帯にいる人）の数。
+  //   5割・2割の基準額は「被保険者の数と特定同一世帯所属者の数の合計数」に掛ける。所得は呼び出し側が
+  //   reductionJudgmentIncome に入れる（国民健康保険法施行令 第29条の7 第6項第1号・第3号）
+  //   [確認済 2026-10-25 e-Gov 法令API・2026-08-01 施行時点]。均等割・平等割の人数には入れない。
+  const tokuteiSafe = Math.max(Math.floor(Number(tokuteiDouitsuCount) || 0), 0);
+  const judgedPersons = family + tokuteiSafe;
+  // ② salaryPensionCount > family 対策：世帯主等の人数を上限として clamp。
+  //   給与所得者等の数は「世帯主並びに…被保険者及び特定同一世帯所属者」（世帯主等）のうちで数える
+  //   （国民健康保険法施行令 第29条の7 第6項第1号）。国保に入っていない世帯主（擬制世帯主）も入るので、
+  //   giseiSetainushi: true のときは上限に 1 を足す（2026-10-25・全方向試算 B-3）。
+  const earnerCap = familySafe + tokuteiSafe + (giseiSetainushi ? 1 : 0);
+  const B = Math.max(Math.min(salaryPensionCount || 0, earnerCap || 1), 1);
   const salaryPensionAdd = data.reduction?.salaryPensionAdd || 0;
   const extraForIncomeEarners = salaryPensionAdd * Math.max(0, B - 1);
 
   const sevenTenthsLimit =
     (data.reduction?.standards?.sevenTenths?.base || 0) +
-    ((data.reduction?.standards?.sevenTenths?.perPersonAdd || 0) * family) +
+    ((data.reduction?.standards?.sevenTenths?.perPersonAdd || 0) * judgedPersons) +
     extraForIncomeEarners;
 
   const fiveTenthsLimit =
     (data.reduction?.standards?.fiveTenths?.base || 0) +
-    ((data.reduction?.standards?.fiveTenths?.perPersonAdd || 0) * family) +
+    ((data.reduction?.standards?.fiveTenths?.perPersonAdd || 0) * judgedPersons) +
     extraForIncomeEarners;
 
   const twoTenthsLimit =
     (data.reduction?.standards?.twoTenths?.base || 0) +
-    ((data.reduction?.standards?.twoTenths?.perPersonAdd || 0) * family) +
+    ((data.reduction?.standards?.twoTenths?.perPersonAdd || 0) * judgedPersons) +
     extraForIncomeEarners;
 
   let reductionLabel = "軽減なし";
@@ -161,7 +187,7 @@ function calculateKokuho(input, data) {
   const childcareCfg        = data.childcareLevy || data.childcare;
   const childcareRate       = childcareCfg?.rate      || 0;
   const childcarePerCapita  = childcareCfg?.perCapita || 0;
-  const childcareHousehold  = childcareCfg?.household || 0;
+  const childcareHousehold  = tokuteiAdj(childcareCfg?.household || 0);
   const childcareIncome     = childcareRate > 0 ? Math.round(baseIncome * childcareRate) : 0;
 
   // 均等割の計算
@@ -238,4 +264,14 @@ function calculateKokuho(input, data) {
   };
 }
 
-if (typeof module !== 'undefined') module.exports = { calculateKokuho };
+// 特定世帯の区分を年齢から推定する（75歳で国保から後期へ移ったとみなす）。
+//   75〜79歳＝移ってから5年以内（特定世帯）、80〜82歳＝その後3年間（特定継続世帯）、それ以外は null。
+//   誕生月によっては境目の年に1年ずれることがある。
+function tokuteiSetaiKubunFromAge(age) {
+  if (!Number.isFinite(age) || age < 75) return null;
+  if (age <= 79) return 'tokutei';
+  if (age <= 82) return 'keizoku';
+  return null;
+}
+
+if (typeof module !== 'undefined') module.exports = { calculateKokuho, tokuteiSetaiKubunFromAge };
