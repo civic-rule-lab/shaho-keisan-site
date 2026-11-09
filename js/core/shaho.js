@@ -418,7 +418,14 @@ function calculateShaho(input, data) {
 
   // --- 賞与（任意） ---
   // 数で渡されたのに有限でない（Infinity・NaN）ときは例外（標準賞与額が Infinity になっていた・C200）
-  if (typeof input.bonus === 'number' && !Number.isFinite(input.bonus)) throw new RangeError(`bonus が有限の数ではありません（${String(input.bonus)}）`);
+  // 賞与の検査（2026-11-09 S1-2 shaho-copy-diff F1・SHAHO-INFO-1）。未指定（null・undefined）と 0 は「賞与なし」。
+  //   数でない（文字列 "500000" など）・NaN・Infinity・負の数は例外（age の _normAge と同じ流儀）。
+  //   旧は typeof === 'number' かつ > 0 のときだけ計算し、文字列・負数を黙って「賞与なし」にしていた
+  if (input.bonus != null) {
+    if (typeof input.bonus !== 'number') throw new TypeError(`bonus は数で渡してください（${String(input.bonus)}）`);
+    if (!Number.isFinite(input.bonus)) throw new RangeError(`bonus が有限の数ではありません（${String(input.bonus)}）`);
+    if (input.bonus < 0) throw new RangeError(`bonus が負の数です（${String(input.bonus)}）`);
+  }
   if (typeof input.bonus === 'number' && input.bonus > 0) {
     // 健保系 標準賞与額の年度上限（[確認済] 573万。provider別ソース：協会けんぽ=standard.kenpo.bonusCap／船員=senpo.bonusCap）
     const healthYearCapYen = healthProvider === 'senpo'
